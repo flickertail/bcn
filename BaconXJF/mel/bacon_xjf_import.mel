@@ -1,0 +1,445 @@
+//   BaconXJF JSON Parser
+//   Copyright (c), 2015
+//   Author: Aaron Bergstrom 
+//   E-mail: flickertail@gmail.com
+//
+
+global string $slashQuoteSubBxjf =  "<<<<<^>>>>>"; // \"
+global string $quoteSubBxjf = "<<<<<^^>>>>>"; //  "
+global int    $jsonBeganBxjf;
+global int    $inStrJsonBxjf;
+global int    $isColonBxjf;
+global int    $isArrayBxjf;
+global string $dataTypesJsonBxjf[];
+global string $currentDataTypeJsonBxjf;
+global string $valStrBuffJsonBxjf;
+global string $strBuffJsonBxjf;
+global string $strArrJsonBxjf[];
+global string $nameBuffJsonBxjf;
+global int    $nIdxJsonBxjf;
+
+global string $curJsonObjBxjf;
+
+global proc string createJSON_bxjf()
+{
+    if(`objExists JSON_bxjf`) delete JSON_bxjf;
+    string $jNode = `createNode transform -name JSON_bxjf -skipSelect`;
+//    hide $jNode;
+    return $jNode;
+}
+
+global proc string createJsonObjectBxjf()
+{
+global string $strBuffJsonBxjf;
+global int    $isColonBxjf;
+global string $curJsonObjBxjf;
+global string $nameBuffJsonBxjf;
+global int    $nIdxJsonBxjf;
+
+	string $jsonName = "";
+	if($isColonBxjf)
+	{
+		$jsonName = $nameBuffJsonBxjf;
+		$strBuffJsonBxjf = "";
+		$isColonBxjf = false;
+	}
+	
+    string $obj = `createNode -name ("JSON_bxjf" + $nIdxJsonBxjf) -parent $curJsonObjBxjf "transform"`;
+   	addAttr -ln "jsonName" -dt "string";
+    setAttr ($obj+".jsonName") -type "string" $jsonName;
+
+	$nameBuffJsonBxjf = "";
+	$nIdxJsonBxjf++;
+	
+    return $obj;
+}
+
+global proc string createJsonArrayBxjf()
+{
+global string $curJsonObjBxjf;
+global string $nameBuffJsonBxjf;
+global int    $nIdxJsonBxjf;
+
+    string $array = `createNode -name ("JSON_bxjf" + $nIdxJsonBxjf) -parent $curJsonObjBxjf "transform"`;
+   	addAttr -ln "jsonName" -dt "string";
+    setAttr ($array + ".jsonName") -type "string" $nameBuffJsonBxjf;
+    
+    $nameBuffJsonBxjf = "";
+	$nIdxJsonBxjf++;
+
+    return $array;
+}
+
+global proc string[] explodeStrBxjf(string $str)
+{
+    string $sArr[];
+    int $i;
+    int $s = size($str);
+    for($i=1; $i<=$s; $i++) $sArr[size($sArr)] = `substring $str $i $i`;
+    return $sArr;
+}
+
+global proc processValueCharBxjf(string $valChar)
+{
+global string $valStrBuffJsonBxjf;
+
+	$valStrBuffJsonBxjf = $valStrBuffJsonBxjf + $valChar;
+}
+
+global proc addValArrToCurNodeJsonBxjf()
+{
+global string $strArrJsonBxjf[];
+global string $valStrBuffJsonBxjf;
+global int    $isArrayBxjf;
+global string $curJsonObjBxjf;
+
+	$strArrJsonBxjf[size($strArrJsonBxjf)] = $valStrBuffJsonBxjf;
+	$valStrBuffJsonBxjf = "";
+	
+	select -r $curJsonObjBxjf;
+	addAttr -ln "json_array" -sn "jsnarr" -dt stringArray;
+
+	string $mycmd = ("setAttr -type stringArray " + $curJsonObjBxjf + ".json_array " + size($strArrJsonBxjf) + " ");
+	string $arrStr = "";
+	for($str in $strArrJsonBxjf)
+	{
+		$arrStr += ("\"" + $str + "\" ");
+	}
+	strip($arrStr);
+    $mycmd += $arrStr;
+	evalEcho($mycmd);
+	$arrStr = "";
+	$mycmd = "";
+	
+   	$strArrJsonBxjf = {};
+	$isArrayBxjf = false;
+}
+
+global proc addNvpToCurNodeJsonBxjf()
+{
+global string $curJsonObjBxjf;
+global string $valStrBuffJsonBxjf;
+global int    $isColonBxjf;
+global string $nameBuffJsonBxjf;
+
+	select -r $curJsonObjBxjf;
+	addAttr -ln ("json_" + $nameBuffJsonBxjf) -dt "string";
+	setAttr ($curJsonObjBxjf + ".json_" + $nameBuffJsonBxjf) -type "string" $valStrBuffJsonBxjf;
+	$isColonBxjf        = false;
+	$valStrBuffJsonBxjf = "";
+	$nameBuffJsonBxjf    = "";
+}
+
+global proc parseJsonObjsBxjf(string $fileLine)
+{
+global string $slashQuoteSubBxjf; // \"
+global int    $jsonBeganBxjf;
+global int    $inStrJsonBxjf;
+global int    $isColonBxjf;
+global int    $isArrayBxjf;
+global string $strBuffJsonBxjf;
+global string $valStrBuffJsonBxjf;
+global string $nameBuffJsonBxjf;
+global string $curJsonObjBxjf;
+global string $strArrJsonBxjf[];
+global string $nameBuffJsonBxjf;
+
+
+	$fileLine = substituteAllString($fileLine, "\\\"", $slashQuoteSubBxjf);
+	
+    string $cArray[] = explodeStrBxjf($fileLine);
+    int $i;
+    int $s = size($cArray);
+    for($i=0; $i<$s; $i++)
+    {
+        switch($cArray[$i])
+        {
+            case "\"":
+                if($inStrJsonBxjf == true)
+                {
+	                $inStrJsonBxjf = false;
+	                $strBuffJsonBxjf = substituteAllString($strBuffJsonBxjf, $slashQuoteSubBxjf, "\\\"");
+	                if($isArrayBxjf == true || $isColonBxjf == true)
+	                {
+	                	$valStrBuffJsonBxjf = $strBuffJsonBxjf;
+	                	$strBuffJsonBxjf = "";
+	                }
+	                else
+	                {
+	                	$nameBuffJsonBxjf = $strBuffJsonBxjf;
+	                	$strBuffJsonBxjf = "";
+	                }
+                }
+                else
+                {
+                	$inStrJsonBxjf = true;
+                }
+
+                break;
+            case "{":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else
+                {
+                	//Situation where the JSON file starts with non-standard:
+                	/*
+                	"SomeName":
+                	{
+                		...contents of the rest of the file...
+                	}
+                	*/
+                	if($jsonBeganBxjf == false && $isColonBxjf == true)
+                	{
+						print "Parsing JSON File";	    	                
+    	                $curJsonObjBxjf = createJsonObjectBxjf();
+    	                $jsonBeganBxjf = true;
+    	            }
+    	            //Situation where the JSON file starts with standard:
+    	            /*
+    	            {
+    	            	...contents of the rest of the file...
+    	            }
+
+    	            	No JSON object is created because we've already created
+    	            	the JSON_bxjf node.
+
+    	            */
+    	            else if($jsonBeganBxjf == false && $isColonBxjf == false)
+    	            {
+    	            	print "Parsing JSON File";
+    	            	$jsonBeganBxjf = true;
+    	            }
+    	            //Covers every other situation for {}
+                	else $curJsonObjBxjf = createJsonObjectBxjf();
+	   	        	$isArrayBxjf = false;
+                }
+
+                break;
+            case "}":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else
+                {
+                	if($isColonBxjf) addNvpToCurNodeJsonBxjf();
+                	
+                    string $selItems[] = `pickWalk -d up`;
+                    $curJsonObjBxjf = $selItems[0];
+	   	        	$isArrayBxjf = false;
+                }
+                break;
+            case "[":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else
+                {
+    	        	$curJsonObjBxjf = createJsonArrayBxjf();
+                	$isColonBxjf    = false;
+    	        	$isArrayBxjf    = true;
+                }
+                break;
+            case "]":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else
+                {
+                    if($isArrayBxjf) addValArrToCurNodeJsonBxjf();
+                    string $selItems[] = `pickWalk -d up`;
+                    $curJsonObjBxjf = $selItems[0];
+                }
+                break;
+            case ":":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else
+                {
+                	$isColonBxjf = true;
+					$isArrayBxjf = false;
+                }
+            	break;
+			case ",":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf)
+                {
+					$strArrJsonBxjf[size($strArrJsonBxjf)] = $valStrBuffJsonBxjf;
+					$valStrBuffJsonBxjf = "";
+                }
+                else if($isColonBxjf) addNvpToCurNodeJsonBxjf();
+				break;
+			case "t":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "r":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "u":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "f":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "a":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "l":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "s":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "n":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "u":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "-":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "e":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "E":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "0":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "1":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "2":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "3":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "4":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "5":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "6":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "7":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "8":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+			case "9":
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                else if($isArrayBxjf || $isColonBxjf) processValueCharBxjf($cArray[$i]);
+				break;
+            default:
+                if($inStrJsonBxjf) $strBuffJsonBxjf = $strBuffJsonBxjf + $cArray[$i];
+                break;
+        }
+    }
+}
+
+global proc importJsonBxjf()
+{
+global int    $jsonBeganBxjf;
+global int    $inStrJsonBxjf;
+global int    $isColonBxjf;
+global int    $isArrayBxjf;
+global string $dataTypesJsonBxjf[];
+global string $currentDataTypeJsonBxjf;
+global string $valStrBuffJsonBxjf;
+global string $strBuffJsonBxjf;
+global string $strArrJsonBxjf[];
+global string $nameBuffJsonBxjf;
+
+global string $curJsonObjBxjf;
+global int    $nIdxJsonBxjf;
+
+	//Enumeration of data types as expressed by a string.
+	$dataTypesJsonBxjf = { "string", "number", "object", "array", "boolean", "null" };
+	$jsonBeganBxjf   = false;
+	$inStrJsonBxjf   = false;
+	$isColonBxjf     = false;
+	$isArrayBxjf     = false;
+	$strBuffJsonBxjf = "";
+	$arrBuffJsonBxjf = "";
+	$curJsonObjBxjf  = "";
+	$strArrJsonBxjf  = {};
+	$nameBuffJsonBxjf = "";
+	$nIdxJsonBxjf     = 0;
+	
+	//Determine the MEL read/write capabilities of this
+	//version of Maya. Basically, we are trying to detect
+	//whether or not the content author is using Maya LT.
+    string $bPath = `optionVar -q "pathToBaconXJF"`;
+	int $ovExist_isMayaLtBxjf = `optionVar -ex "isMayaLtBxjf"`;
+    if($ovExist_isMayaLtBxjf == 1 ) $isMayaLtBxjf = `optionVar -q "isMayaLtBxjf"`;
+    else
+    {
+    	if ( catch( $testLines = `freadAllLines ($bPath + "/mel/bacon_xjf_import.mel")`  ) )
+    	{
+    		$bPath = "";
+			$testLines = {};    		
+    		$isMayaLtBxjf = true;
+    	}
+		else $isMayaLtBxjf = false;
+		optionVar -iv "isMayaLtBxjf" $isMayaLtBxjf;
+	}
+
+    //Create a hidden transform node that the code uses
+    //to build a logical data tree to which parsed 
+    //objects will be attached.
+    $curJsonObjBxjf = createJSON_bxjf();
+	select -r $curJsonObjBxjf;
+
+	//User select the JSON file to parse.	
+    string $jsonFile[] = `fileDialog2 -fm 0 -cap "Import JSON File" -ff "JSON (*.json)" -okc "Open" -cc "Cancel"`;
+    
+	//Parse the lines of the JSON file.
+	//Using Maya LT
+    if($isMayaLtBxjf)
+    {
+    	string $jText[] = `freadAllLines $jsonFile[0]`;
+		for($str in $jText) parseJsonObjsBxjf($str);
+    }
+    //Using Maya Full Version
+    else
+    {
+    	int $fID = `fopen $jsonFile[0] "r"`;
+		while( !feof($fID) ) parseJsonObjsBxjf(`fgetline $fID`);
+		fclose $fID;
+    }
+
+	$jsonBeganBxjf = false;
+	$inStrJsonBxjf = false;
+	$isColonBxjf   = false;
+	$isArrayBxjf   = false;
+	$dataTypesJsonBxjf = {};
+	$currentDataTypeJsonBxjf = "";
+	$valStrBuffJsonBxjf = "";
+	$strBuffJsonBxjf = "";
+	$strArrJsonBxjf = {};
+	$nameBuffJsonBxjf = "";
+	$curJsonObjBxjf = "";
+	$nIdxJsonBxjf     = 0;
+
+	print "Initial Test Successful!";
+}
+
+importJsonBxjf;
