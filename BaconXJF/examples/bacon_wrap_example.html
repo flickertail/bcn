@@ -1,4 +1,4 @@
-/*
+<!--
 The MIT License (MIT)
 
 Copyright (c) 2015 Aaron Bergstrom
@@ -22,36 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
+-->
 
-// BaconXJF 
-// Author: Aaron Bergstrom 
-// E-mail: flickertail@gmail.com
-
-function processVizorScene(data)
-{
-	var newContent = JSON.stringify(data); 
-	document.getElementById('content').innerHTML = newContent;
-}
-
-function loadVizorMeshFile(data)
-{
-	meshData[data.idx] = data;
-	var meshContent = JSON.stringify(data);
-	document.getElementById('mesharea').innerHTML = meshContent;
-}
-
-function readVizorMeshImage(data)
-{
-}
-
-function paintVizorMeshImage(data)
-{
-}
-
-function storeVizorSceneFile(data)
-{
-}
-
-function storeVizorMeshImage(img)
-{
-}
+<html>
+	<head>
+		<title>BaconXJF 3D Web Formats Exporter - Vizor.io Format</title>
+		<script>
+			var mdLen = 10;
+			var meshData = new Array(mdLen);
+		</script>
+	</head>
+	<body>
+		<div id="content">Getting Ready! Go again!</div>
+		<script src="../BaconXJF/js/vizorSceneProcessor.js"></script>
+		<script src="./vrtest.json?callback=processVizorScene"></script>
+		<script src="./vrtest_meshName.json?callback=loadVizorMeshFile"></script>
+	</body>
+</html>

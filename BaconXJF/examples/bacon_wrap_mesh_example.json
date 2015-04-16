@@ -1,0 +1,11 @@
+loadVizorMeshFile({
+	"idx": n,
+	"meshname":"someshape",
+	"vertices":[n,n,n,n,n,n,n,n,n,n,n,n,n,n,...,n],
+	"normals":[n,n,n,n,n,n,n,n,n,n,n,n,...,n],
+	"uvLen": n,
+	"uv0":[n,n,n,n,n,n,n,n,n,n,n,n,...,n],
+	"uv1":[n,n,n,n,n,n,n,n,n,n,n,n,...,n],
+	"uv2":[n,n,n,n,n,n,n,n,n,n,n,n,...,n],
+	"uv3":[n,n,n,n,n,n,n,n,n,n,n,n,...,n]
+});
