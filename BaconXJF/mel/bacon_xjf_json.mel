@@ -221,6 +221,11 @@ global proc string getNVPrObjArr(string $bcnName, string $bcnString[], string $b
     return $rStr;
 }
 
+global proc bacon_xjf_json()
+{
+	print "Sourcing bacon_xjf_json.mel";
+}
+
 //global proc string getNamedValuePair(string $bcnName, string $bcnObjName)
 //{
 //}

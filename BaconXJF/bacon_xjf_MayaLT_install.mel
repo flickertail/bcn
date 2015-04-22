@@ -21,12 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-BaconXJF Maya Development Test Installer
+BaconXJF MayaLT Development Test Installer
 Author: Aaron Bergstrom 
 E-mail: flickertail@gmail.com
 */
 
-global proc bacon_xjf_Maya_install_dev()
+global proc bacon_xjf_MayaLT_install()
 {
 	//Look to see if a previous version of BaconXJF is already installed.
 	string $bcnVer = `optionVar -q "bxjfVersion"`;
@@ -48,61 +48,29 @@ global proc bacon_xjf_Maya_install_dev()
 		//Get the path to the user's Maya.env file.
 		string $envFile = `about -env`;
 		
-		//String that will eventually store the
-		//path to the user's "userSetup.mel" script.
+		//String that will store the path to the user's 
+		//"userSetup.mel" script.
 		string $userScripts = `internalVar -usd`;
 		
 		//Read in all the lines of the BaconXJF MEL files to the User's Script directory.
-		string $jsnScript[];
-		string $xmlScript[];
-		string $impScript[];
-		string $expScript[];
-		
-		int $jsnFile = `fopen ($bxjfFolder + "mel/bacon_xjf_json.mel")   "r"`;
-		int $xmlFile = `fopen ($bxjfFolder + "mel/bacon_xjf_xml.mel")    "r"`;
-		int $impFile = `fopen ($bxjfFolder + "mel/bacon_xjf_import.mel") "r"`;
-		int $expFile = `fopen ($bxjfFolder + "mel/bacon_xjf_export.mel") "r"`;
-		
-		int $uJsnFile = `fopen ($userScripts + "bacon_xjf_json.mel")   "w"`;
-		int $uXmlFile = `fopen ($userScripts + "bacon_xjf_xml.mel")    "w"`;
-		int $uImpFile = `fopen ($userScripts + "bacon_xjf_import.mel") "w"`;
-		int $uExpFile = `fopen ($userScripts + "bacon_xjf_export.mel") "w"`;
-		
-		while ( !`feof($jsnFile)` )
-		{
-			string $lineRead = `fgetline $jsnFile`;
-			fprint $uJsnFile $lineRead;
-		}
+		string $jsnScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_json.mel")`;
+		string $xmlScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_xml.mel")`;
+		string $impScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_import.mel")`;
+		string $expScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_export.mel")`;
 
-		while ( !`feof($xmlFile)` )
-		{
-			string $lineRead = `fgetline $xmlFile`;
-			fprint $uXmlFile $lineRead;
-		}
-
-		while ( !`feof($impFile)` )
-		{
-			string $lineRead = `fgetline $impFile`;
-			fprint $uImpFile $lineRead;
-		}
-		while ( !`feof($expFile)` )
-		{
-			string $lineRead = `fgetline $expFile`;
-			fprint $uExpFile $lineRead;
-		}
+		string $bxjfOne = $userScripts + "bacon_xjf_json.mel";
+		string $bxjfTwo = $userScripts + "bacon_xjf_xml.mel";
+		string $bxjfThr = $userScripts + "bacon_xjf_import.mel";
+		string $bxjfFor = $userScripts + "bacon_xjf_export.mel";
 		
-		fclose $jsnFile;
-		fclose $uJsnFile;
-		fclose $xmlFile;
-		fclose $uXmlFile;
-		fclose $impFile;
-		fclose $uImpFile;
-		fclose $expFile;
-		fclose $uExpFile;
+		fwriteAllLines $bxjfOne $jsnScript;
+		fwriteAllLines $bxjfTwo $xmlScript;
+		fwriteAllLines $bxjfThr $impScript;
+		fwriteAllLines $bxjfFor $expScript;
 	
 		//Set the optionVar that reminds all BaconXJF MEL
 		//Scripts of the MayaLT IO Style.
-	    optionVar -iv "isMayaLtBxjf" false;
+	    optionVar -iv "isMayaLtBxjf" true;
 	    
 	    //In export options, default to Export All Objects.
 	    optionVar -iv "isSelectBxjf" 1;
@@ -125,4 +93,4 @@ global proc bacon_xjf_Maya_install_dev()
 	else  print ("BaconXJF version " + $bcnVer + " is already installed. Please uninstall BaconXJF before proceeding.");
 }
 
-bacon_xjf_Maya_install_dev;
+bacon_xjf_MayaLT_install;

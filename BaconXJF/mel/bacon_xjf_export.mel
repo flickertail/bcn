@@ -1978,13 +1978,19 @@ global string $bcnFormat[];
             $bxjfType = "X3DX";
             prtLineBxjf "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
             prtLineBxjf "<!DOCTYPE X3D PUBLIC \"ISO//Web3D//DTD X3D 3.0//EN\"  \"http://www.web3d.org/specifications/x3d-3.0.dtd\">";
-            prtLineBxjf(getXmlStartTag("X3D", { getXmlFltField("version", 3.0), getXmlStrField("profile", "Interchange") }, false));
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlFltField("version", 3.0);
+            $x3dArray[size($x3dArray)] = getXmlStrField("profile", "Interchange");
+            prtLineBxjf(getXmlStartTag("X3D", $x3dArray, false));
             break;
         case "x3dhFileFormat":
             $bxjfType = "X3DH";
             prtLineBxjf "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
             prtLineBxjf "<!DOCTYPE X3D PUBLIC \"ISO//Web3D//DTD X3D 3.0//EN\"  \"http://www.web3d.org/specifications/x3d-3.0.dtd\">";
-            prtLineBxjf(getXmlStartTag("X3D", { getXmlFltField("version", 3.0), getXmlStrField("profile", "Interchange") }, false));
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlFltField("version", 3.0);
+            $x3dArray[size($x3dArray)] = getXmlStrField("profile", "Interchange");
+            prtLineBxjf(getXmlStartTag("X3D", $x3dArray, false));
             break;
         default:
             prtLineBxjf "Failure Start";
@@ -2111,10 +2117,14 @@ global string $bcnFormat[];
         case "x3dxFileFormat":
             $depBxjf++;
             string $empty[];
-            prtLineBxjf(getXmlStartTagNF("head"));
+            string $x3dString = getXmlStartTagNF("head");
+            prtLineBxjf($x3dString);
             
             $depBxjf++;
-            prtLineBxjf(getXmlStartTag("meta", {getXmlStrField("name", "filename"), getXmlStrField("content", $expFilePathBaconXJF[2]) }, true));
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlStrField("name", "filename");
+            $x3dArray[size($x3dArray)] = getXmlStrField("content", $expFilePathBaconXJF[2]);
+            prtLineBxjf(getXmlStartTag("meta", $x3dArray, true));
             
             $depBxjf--;
             prtLineBxjf(getXmlEndTag("head",""));
@@ -2125,7 +2135,10 @@ global string $bcnFormat[];
             prtLineBxjf(getXmlStartTagNF("head"));
             
             $depBxjf++;
-            prtLineBxjf(getXmlStartTag("meta", {getXmlStrField("name", "filename"), getXmlStrField("content", $expFilePathBaconXJF[2]) }, true));
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlStrField("name", "filename");
+            $x3dArray[size($x3dArray)] = getXmlStrField("content", $expFilePathBaconXJF[2]);
+            prtLineBxjf(getXmlStartTag("meta", $x3dArray, true));
             
             $depBxjf--;
             prtLineBxjf(getXmlEndTag("head",""));
@@ -2621,8 +2634,10 @@ global string $bcnFormat[];
     print "\n";
 }
 
-global proc bacon_xjf()
+global proc bacon_xjf_export()
 {
+	bacon_xjf_json;
+	bacon_xjf_xml;
 	showBaconXJFEx;
 }
 

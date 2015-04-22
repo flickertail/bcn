@@ -36,9 +36,6 @@ global proc bacon_xjf_MayaLT_install_dev()
 		//Set version install to development version.
 		$bcnVer = "development";
 		
-		//Value that tells us wether we're using MayaLT or Maya
-		//style I/O.
-		int $bcnMayaLTioStyle = false;
 		//Get the path to the BaconXJF root folder.
 		//Because we sourced this MEL script, this
 		//path is the same as the current working
@@ -54,9 +51,8 @@ global proc bacon_xjf_MayaLT_install_dev()
 		//String that will store the path to the user's 
 		//"userSetup.mel" script.
 		string $userScripts = `internalVar -usd`;
-//		       $userSetup += "userSetup.mel";
 		
-		//Read in all the lines of the "userSetup.mel" file
+		//Read in all the lines of the BaconXJF MEL files to the User's Script directory.
 		string $jsnScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_json.mel")`;
 		string $xmlScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_xml.mel")`;
 		string $impScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_import.mel")`;
@@ -79,21 +75,6 @@ global proc bacon_xjf_MayaLT_install_dev()
 	    //In export options, default to Export All Objects.
 	    optionVar -iv "isSelectBxjf" 1;
 		
-		//Add the BaconXJF MEL scripts to the userSetup.mel file
-		
-//		string $cmd1 = "source \"" + $bxjfFolder + "mel/bacon_xjf_json.mel\"";
-//		string $cmd2 = "source \"" + $bxjfFolder + "mel/bacon_xjf_xml.mel\"";
-//		string $cmd3 = "source \"" + $bxjfFolder + "mel/bacon_xjf_import.mel\"";
-//		string $cmd4 = "source \"" + $bxjfFolder + "mel/bacon_xjf.mel\"";
-//		$usLines[size($usLines)] = "evalDeferred(" + $cmd1 + ");";
-//		$usLines[size($usLines)] = "evalDeferred(" + $cmd2 + ");";
-//		$usLines[size($usLines)] = "evalDeferred(" + $cmd3 + ");";
-//		$usLines[size($usLines)] = "evalDeferred(" + $cmd4 + ");";
-		
-		//If the IO style is MayaLT, then write all lines 
-		//in $usLines array to the userSetup.mel script.
-//		fwriteAllLines $userSetup $usLines;
-		
 		//Add shelf icons for export and import
 		scriptToShelf "exp" "bacon_xjf_export" "1";
 		scriptToShelf "imp" "bacon_xjf_import" "1";
@@ -106,7 +87,7 @@ global proc bacon_xjf_MayaLT_install_dev()
 		
 		/************************************************************************/
 		
-		print "BaconXJF MEL Scripts have been added to your 'userSetup.mel' file.\n";
+		print "BaconXJF MEL Scripts have been moved to your User's Scripts directory.\n";
 		print ("BaconXJF ver " + $bcnVer + " is installed. Please restart Maya for the changes to take effect.\n");
 	}
 	else  print ("BaconXJF version " + $bcnVer + " is already installed. Please uninstall BaconXJF before proceeding.");

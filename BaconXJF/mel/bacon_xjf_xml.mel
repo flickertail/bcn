@@ -145,5 +145,11 @@ global proc string getXmlFltArrField(string $xmlFieldName, float $xmlFieldValues
 
     return $xmlFieldText;
 }
+
+global proc bacon_xjf_xml()
+{
+	print "Sourcing bacon_xjf_xml.mel";
+}
+
 /***********************************************************/
 
