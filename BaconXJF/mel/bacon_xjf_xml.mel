@@ -1,0 +1,149 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Aaron Bergstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+BaconXJF XML Functions
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
+*/
+
+/////////////////////////////////////////////////////////////
+/************************************************************
+XML Functions
+************************************************************/
+global proc string getXmlStartTagNF(string $xmlTagType)
+{
+    string $tagText = "<" + $xmlTagType + ">";
+    return $tagText;
+}
+
+global proc string getXmlStartTag(string $xmlTagType, string $xmlFields[], int $isSelfEnding)
+{
+    string $tagText = "<" + $xmlTagType;
+    
+    int $i;
+    int $s = size($xmlFields);
+    for($i=0; $i<$s; $i++) $tagText = $tagText + " " + $xmlFields[$i];
+    
+    string $tagEnd = ">";
+    if($isSelfEnding == 1) $tagEnd = " />";
+    $tagText = $tagText + $tagEnd;
+    return $tagText;
+}
+
+global proc string getXmlEndTag(string $xmlTagType, string $xmlEndComment)
+{
+    string $tagText = "</" + $xmlTagType + ">";
+    if($xmlEndComment != "") $tagText = $tagText + "<!-- " + $xmlEndComment + " -->";
+    return $tagText;
+}
+
+global proc string getXmlStrField(string $xmlFieldName, string $xmlFieldValue)
+{
+    string $xmlFieldText = $xmlFieldName + "='" + $xmlFieldValue + "'";
+    return $xmlFieldText;
+}
+
+global proc string getXmlStrArrField(string $xmlFieldName, string $xmlFieldValues[])
+{
+    string $xmlFieldText = $xmlFieldName + "='";
+    int $i;
+    int $s = size($xmlFieldValues);
+    for($i=0; $i<$s; $i++)
+    {
+        $xmlFieldText = $xmlFieldText + "\"" + $xmlFieldValues[$i] + "\"";
+        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
+    }
+    $xmlFieldText = $xmlFieldText + "'";
+    return $xmlFieldText;
+}
+
+global proc string getXmlIntField(string $xmlFieldName, int $xmlFieldValue)
+{
+    string $xmlFieldText = $xmlFieldName + "='" + $xmlFieldValue + "'";
+    return $xmlFieldText;
+}
+
+global proc string getXmlIntArrField(string $xmlFieldName, int $xmlFieldValues[])
+{
+    string $xmlFieldText = $xmlFieldName + "='";
+    int $i;
+    int $s = size($xmlFieldValues);
+    for($i=0; $i<$s; $i++)
+    {
+        $xmlFieldText = $xmlFieldText + $xmlFieldValues[$i];
+        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
+    }
+    $xmlFieldText = $xmlFieldText + "'";
+
+    return $xmlFieldText;
+}
+
+global proc string getXmlBoolField(string $xmlFieldName, int $xmlFieldValue)
+{
+    string $xmlFieldText = $xmlFieldName + "='";
+    string $tBool = "true";
+    if($xmlFieldValue == 0) $tBool = "false";
+    $xmlFieldText = $xmlFieldText + $tBool + "'";
+    
+    return $xmlFieldText;
+}
+
+global proc string getXmlBoolArrField(string $xmlFieldName, int $xmlFieldValues[])
+{
+    string $xmlFieldText = $xmlFieldName + "='";
+    int $i;
+    int $s = size($xmlFieldValues);
+    for($i=0; $i<$s; $i++)
+    {
+        string $tBool = "true";
+        if($xmlFieldValues[$i] == 0) $tBool = "false";
+        $xmlFieldText = $xmlFieldText + $tBool;
+        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
+    }
+    $xmlFieldText = $xmlFieldText + "'";
+    
+    return $xmlFieldText;
+}
+
+global proc string getXmlFltField(string $xmlFieldName, float $xmlFieldValue)
+{
+    string $xmlFieldText = $xmlFieldName + "='" + bcnForceFloat($xmlFieldValue) + "'";
+    return $xmlFieldText;
+}
+
+global proc string getXmlFltArrField(string $xmlFieldName, float $xmlFieldValues[])
+{
+    string $xmlFieldText = $xmlFieldName + "='";
+    int $i;
+    int $s = size($xmlFieldValues);
+    for($i=0; $i<$s; $i++)
+    {
+        $xmlFieldText = $xmlFieldText + bcnForceFloat($xmlFieldValues[$i]);
+        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
+    }
+    $xmlFieldText = $xmlFieldText + "'";
+
+    return $xmlFieldText;
+}
+/***********************************************************/
+

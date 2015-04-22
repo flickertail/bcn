@@ -1,0 +1,228 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Aaron Bergstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+BaconXJF JSON Functions
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
+*/
+
+/////////////////////////////////////////////////////////////
+/************************************************************
+JSON Functions
+************************************************************/
+global int $depBxjf;
+
+//global proc string getObjectStr(string $bcnObjName)
+//{
+//}
+
+global proc string getObjHead(string $bcnName)
+{
+global int $depBxjf;
+    string $hd = "\"" + $bcnName + "\":\n";
+    
+    int $i;
+    for($i=0; $i<$depBxjf; $i++) $hd = $hd + "\t";
+    $hd = $hd + "{";
+
+    return $hd;
+}
+
+global proc string getObjFoot(string $bcnEnd)
+{
+global int $depBxjf;
+    string $ft = "}" + $bcnEnd;
+    
+    return $ft;
+}
+
+global proc string getArrHeadNamed(string $bcnName)
+{
+global int $depBxjf;
+    string $hd = "\"" + $bcnName + "\":\n";
+    
+    int $i;
+    for($i=0; $i<$depBxjf; $i++) $hd = $hd + "\t";
+    $hd = $hd + "[";
+
+    return $hd;
+}
+
+global proc string getArrHead()
+{
+global int $depBxjf;
+    return "[";
+}
+
+global proc string getArrFoot(string $bcnEnd)
+{
+global int $depBxjf;
+    string $ft = "]" + $bcnEnd;
+    
+    return $ft;
+}
+
+global proc string getLeafObj(string $bcnName, string $bcnString[], string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : {";
+    int $i;
+    int $a = size($bcnString);
+    for($item in $bcnString) $rStr = $rStr + $item;
+    $rStr = $rStr + "}" + $bcnEnd;
+    
+    return $rStr;
+}
+
+global proc string getNVPrStr(string $bcnName, string $bcnString, string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : \"" + $bcnString + "\"" + $bcnEnd;
+    return $rStr;
+}
+
+global proc string getNVPrStrArr(string $bcnName, int $bcnString[], string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : [";
+    int $i;
+    int $a = size($bcnString);
+    for($i=0; $i<$a; $i++)
+    {
+        $rStr = $rStr + "\"" + $bcnString[$i] + "\"";
+        if($i < $a-1) $rStr = $rStr + ", ";
+        else          $rStr = $rStr + "]" + $bcnEnd;
+    }
+    
+    return $rStr;
+}
+
+global proc string getNVPrInt(string $bcnName, int $bcnInt, string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : " + $bcnInt + $bcnEnd;
+    return $rStr;
+}
+
+global proc string getNVPrIntArr(string $bcnName, int $bcnInt[], string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : [";
+    int $i;
+    int $a = size($bcnInt);
+    for($i=0; $i<$a; $i++)
+    {
+        $rStr = $rStr + $bcnInt[$i];
+        if($i < $a-1) $rStr = $rStr + ", ";
+        else          $rStr = $rStr + "]" + $bcnEnd;
+    }
+    
+    return $rStr;
+}
+
+global proc string bcnForceFloat(float $bcnFloat)
+{
+    string $fStr = "";
+    if(($bcnFloat - floor($bcnFloat)) > 0) $fStr = $fStr + $bcnFloat;
+    else                                   $fStr = $fStr + floor($bcnFloat) + ".0";
+    
+    return $fStr;
+}
+
+global proc string getNVPrFlt(string $bcnName, float $bcnFloat, string $bcnEnd)
+{
+    string $strFloat = bcnForceFloat($bcnFloat);
+    string $rStr = "\"" + $bcnName + "\" : " + $strFloat + $bcnEnd;
+    return $rStr;
+}
+
+global proc string getNVPrFltArr(string $bcnName, float $bcnFloat[], string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : [";
+    int $i;
+    int $a = size($bcnFloat);
+    for($i=0; $i<$a; $i++)
+    {
+        string $strFloat = bcnForceFloat($bcnFloat[$i]);
+        $rStr = $rStr + $strFloat;
+        if($i < $a-1) $rStr = $rStr + ", ";
+        else          $rStr = $rStr + "]" + $bcnEnd;
+    }
+    
+    return $rStr;
+}
+
+global proc string getNVPrBool(string $bcnName, int $bcnBool, string $bcnEnd)
+{
+    string  $rStr = "\"" + $bcnName + "\" : ";
+    string $tBool = "false";
+    if($bcnBool > 0) $tBool = "true";
+
+    $rStr = $rStr + $tBool + $bcnEnd;
+    
+    return $rStr;
+}
+
+global proc string getNVPrBoolArr(string $bcnName, int $bcnBool[], string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : [";
+    int $i;
+    int $a = size($bcnBool);
+    for($i=0; $i<$a; $i++)
+    {
+        string $tBool = "false";
+        if($bcnBool[$i] > 0) $tBool = "true";
+        $rStr = $rStr + $tBool;
+
+        if($i < $a-1) $rStr = $rStr + ", ";
+        else          $rStr = $rStr + "]" + $bcnEnd;
+    }
+        
+    return $rStr;
+}
+
+global proc string getNVPrNull(string $bcnName, string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : null" + $bcnEnd;
+    return $rStr;
+}
+
+global proc string getNVPrNullArr(string $bcnName, int $a, string $bcnEnd)
+{
+    string $rStr = "\"" + $bcnName + "\" : [";
+    int $i;
+    for($i=0; $i<$a; $i++)
+    {
+        if($i < $a-1) $rStr = $rStr + "null, ";
+        else          $rStr = $rStr + "null]" + $bcnEnd;
+    }
+    
+    return $rStr;
+}
+
+global proc string getNVPrObjArr(string $bcnName, string $bcnString[], string $bcnEnd)
+{
+    string $rStr = "";
+    return $rStr;
+}
+
+//global proc string getNamedValuePair(string $bcnName, string $bcnObjName)
+//{
+//}
+/***********************************************************/
+

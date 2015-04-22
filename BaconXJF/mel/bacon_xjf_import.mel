@@ -21,11 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
+BaconXJF JSON Parser
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
 */
-
-// BaconXJF 
-// Author: Aaron Bergstrom 
-// E-mail: flickertail@gmail.com
 
 global string $slashQuoteSubBxjf =  "<<<<<^>>>>>"; // \"
 global string $quoteSubBxjf = "<<<<<^^>>>>>"; //  "
@@ -378,7 +377,7 @@ global string $nameBuffJsonBxjf;
     }
 }
 
-global proc importJsonBxjf()
+global proc bacon_xjf_import()
 {
 global int    $jsonBeganBxjf;
 global int    $inStrJsonBxjf;
@@ -465,4 +464,4 @@ global int    $nIdxJsonBxjf;
 	print "Initial Test Successful!";
 }
 
-importJsonBxjf;
+//bacon_xjf_import;

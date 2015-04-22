@@ -1,0 +1,115 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Aaron Bergstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+BaconXJF MayaLT Development Test Installer
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
+*/
+
+global proc bacon_xjf_MayaLT_install_dev()
+{
+	//Look to see if a previous version of BaconXJF is already installed.
+	string $bcnVer = `optionVar -q "bxjfVersion"`;
+	
+	if($bcnVer == "0" || $bcnVer == "development")
+	{
+		//Set version install to development version.
+		$bcnVer = "development";
+		
+		//Value that tells us wether we're using MayaLT or Maya
+		//style I/O.
+		int $bcnMayaLTioStyle = false;
+		//Get the path to the BaconXJF root folder.
+		//Because we sourced this MEL script, this
+		//path is the same as the current working
+		//directory
+		string $bxjfFolder = `workspace -q -dir`;
+		
+		//Set the path to BaconXJF Root directory
+		optionVar -sv "pathToBaconXJF" $bxjfFolder;
+		
+		//Get the path to the user's Maya.env file.
+		string $envFile = `about -env`;
+		
+		//String that will store the path to the user's 
+		//"userSetup.mel" script.
+		string $userScripts = `internalVar -usd`;
+//		       $userSetup += "userSetup.mel";
+		
+		//Read in all the lines of the "userSetup.mel" file
+		string $jsnScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_json.mel")`;
+		string $xmlScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_xml.mel")`;
+		string $impScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_import.mel")`;
+		string $expScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_export.mel")`;
+
+		string $bxjfOne = $userScripts + "bacon_xjf_json.mel";
+		string $bxjfTwo = $userScripts + "bacon_xjf_xml.mel";
+		string $bxjfThr = $userScripts + "bacon_xjf_import.mel";
+		string $bxjfFor = $userScripts + "bacon_xjf_export.mel";
+		
+		fwriteAllLines $bxjfOne $jsnScript;
+		fwriteAllLines $bxjfTwo $xmlScript;
+		fwriteAllLines $bxjfThr $impScript;
+		fwriteAllLines $bxjfFor $expScript;
+	
+		//Set the optionVar that reminds all BaconXJF MEL
+		//Scripts of the MayaLT IO Style.
+	    optionVar -iv "isMayaLtBxjf" true;
+	    
+	    //In export options, default to Export All Objects.
+	    optionVar -iv "isSelectBxjf" 1;
+		
+		//Add the BaconXJF MEL scripts to the userSetup.mel file
+		
+//		string $cmd1 = "source \"" + $bxjfFolder + "mel/bacon_xjf_json.mel\"";
+//		string $cmd2 = "source \"" + $bxjfFolder + "mel/bacon_xjf_xml.mel\"";
+//		string $cmd3 = "source \"" + $bxjfFolder + "mel/bacon_xjf_import.mel\"";
+//		string $cmd4 = "source \"" + $bxjfFolder + "mel/bacon_xjf.mel\"";
+//		$usLines[size($usLines)] = "evalDeferred(" + $cmd1 + ");";
+//		$usLines[size($usLines)] = "evalDeferred(" + $cmd2 + ");";
+//		$usLines[size($usLines)] = "evalDeferred(" + $cmd3 + ");";
+//		$usLines[size($usLines)] = "evalDeferred(" + $cmd4 + ");";
+		
+		//If the IO style is MayaLT, then write all lines 
+		//in $usLines array to the userSetup.mel script.
+//		fwriteAllLines $userSetup $usLines;
+		
+		//Add shelf icons for export and import
+		scriptToShelf "exp" "bacon_xjf_export" "1";
+		scriptToShelf "imp" "bacon_xjf_import" "1";
+		
+		/************************************************************************
+		Add a line here to write the version number when you're ready for a new
+		release. */
+		
+		optionVar -sv "bxjfVersion" "development";
+		
+		/************************************************************************/
+		
+		print "BaconXJF MEL Scripts have been added to your 'userSetup.mel' file.\n";
+		print ("BaconXJF ver " + $bcnVer + " is installed. Please restart Maya for the changes to take effect.\n");
+	}
+	else  print ("BaconXJF version " + $bcnVer + " is already installed. Please uninstall BaconXJF before proceeding.");
+}
+
+bacon_xjf_MayaLT_install_dev;
