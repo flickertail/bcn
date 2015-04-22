@@ -810,8 +810,8 @@ global int $isMayaLtBxjf;
 
     if($isMayaLtBxjf == false)
     {
-        string $fID= `fopen $fPath`;
-        fprint $bigString;
+        int $fID= `fopen $fPath`;
+        fprint $fID $bigString;
         fclose $fID;
     }
     else fwriteAllText $fPath $bigString;
@@ -848,7 +848,7 @@ global string $bxjfShapes[];
     
     if($isMayaLtBxjf == false)
     {
-        string $vizorHtmlFIDBaconXJF = `fopen $vizorHtmlPathBaconXJF "w"`;
+        int $vizorHtmlFIDBaconXJF = `fopen $vizorHtmlPathBaconXJF "w"`;
         fprint $vizorHtmlFIDBaconXJF $tLine;
         fclose $vizorHtmlFIDBaconXJF;
     }
