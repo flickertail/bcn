@@ -410,19 +410,7 @@ global int    $nIdxJsonBxjf;
 	//version of Maya. Basically, we are trying to detect
 	//whether or not the content author is using Maya LT.
     string $bPath = `optionVar -q "pathToBaconXJF"`;
-	int $ovExist_isMayaLtBxjf = `optionVar -ex "isMayaLtBxjf"`;
-    if($ovExist_isMayaLtBxjf == 1 ) $isMayaLtBxjf = `optionVar -q "isMayaLtBxjf"`;
-    else
-    {
-    	if ( catch( $testLines = `freadAllLines ($bPath + "/mel/bacon_xjf_import.mel")`  ) )
-    	{
-    		$bPath = "";
-			$testLines = {};    		
-    		$isMayaLtBxjf = true;
-    	}
-		else $isMayaLtBxjf = false;
-		optionVar -iv "isMayaLtBxjf" $isMayaLtBxjf;
-	}
+    $isMayaLtBxjf = `about -lt`;
 
     //Create a hidden transform node that the code uses
     //to build a logical data tree to which parsed 

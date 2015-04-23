@@ -78,13 +78,13 @@ global proc deleteBaconXJFEx()
     if(`window -exists "baconXJFEx"`) deleteUI "baconXJFEx";
 }
 
-global proc expStyleBaconXJF()
-{
-global int $isMayaLtBxjf;
-    $isMayaLtBxjf = `radioButtonGrp -query -select "styleBxjf"`;
-    deleteBaconXJFEx;
-    showBaconXJFEx;
-}
+//global proc expStyleBaconXJF()
+//{
+//global int $isMayaLtBxjf;
+//    $isMayaLtBxjf = `radioButtonGrp -query -select "styleBxjf"`;
+//    deleteBaconXJFEx;
+//    showBaconXJFEx;
+//}
 
 global proc expItemsBaconXJF()
 {
@@ -2539,8 +2539,8 @@ global string $bcnFormat[];
     
 	string $testLines[];
     string $bPath = `optionVar -q "pathToBaconXJF"`;
-	$isMayaLtBxjf = `optionVar -q "isMayaLtBxjf"`;
     $isSelectBxjf = `optionVar -q "isSelectBxjf"`;
+	$isMayaLtBxjf = `about -lt`;
     
 	int $ovExist_hasShdrFxBxjf = `optionVar -ex "hasShdrFxBxjf"`;
     if($ovExist_hasShdrFxBxjf == 1 ) $hasShdrFxBxjf = `optionVar -q "hasShdrFxBxjf"`;
