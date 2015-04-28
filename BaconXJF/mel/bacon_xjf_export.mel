@@ -780,12 +780,14 @@ global int $isMayaLtBxjf;
     if($numOfMaps > 0 )
     {
         $bigString = $bigString + "],\n";
-        $bigString = $bigString + "\t\"uvLen\":" + $numOfMaps + ",\n";
+        $bigString = $bigString + "\t\"uvMaps\":\n";
+        $bigString = $bigString + "\t[\n";
         
         int $offset = 0;
         for($j=0; $j<$numOfMaps; $j++)
         {
-            $bigString = $bigString + "\t\"uv" + $j + "\":[";
+        	$bigString = $bigString + "\t\t{\n";
+            $bigString = $bigString + "\t\t\t\"uvcoords\":[";
             
             vector $bVec = $uvs[$uBase+$j];
             int $epm = int($bVec.x);
@@ -797,12 +799,16 @@ global int $isMayaLtBxjf;
                 $bigString = $bigString + bcnForceFloat($tVec.x) + "," + bcnForceFloat($tVec.y);
                 if($t < $epm-1) $bigString = $bigString + ",";
             }
-            
-            $bigString = $bigString + "]";
-            if($j<$epm-1) $bigString = $bigString + ",\n";
-            else          $bigString = $bigString + "\n";
             $offSet = $offset + $epm;
+            
+            $bigString = $bigString + "]\n";
+        	$bigString = $bigString + "\t\t}";
+        	
+            if($j<$numOfMaps-1) $bigString = $bigString + ",\n";
+            else                $bigString = $bigString + "\n";
         }
+        
+	    $bigString = $bigString + "\t]\n";
     }
     else            $bigString = $bigString + "]\n";
 
@@ -833,10 +839,13 @@ global string $bxjfShapes[];
            $tLine = $tLine + "\t\t<title>BaconXJF 3D Web Formats Exporter - Vizor.io Format</title>\n";
            $tLine = $tLine + "\t\t<script>\n";
            $tLine = $tLine + "\t\t\tvar mdLen = " + size($bxjfShapes) + ";\n";
+           $tLine = $tLine + "\t\t\tvar mdLenFnd = 0;\n";
            $tLine = $tLine + "\t\t\tvar meshData = new Array(mdLen);\n";
            $tLine = $tLine + "\t\t</script>\n";
            $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/jszip/dist/jszip.js\" type=\"text/javascript\"></script>\n";
            $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/jszip/vendor/FileSaver.js\" type=\"text/javascript\"></script>\n";
+           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/node-jspack/jspack.js\" type=\"text/javascript\"></script>\n";
+           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/bcnBtzImgGen.js\" type=\"text/javascript\"></script>\n";
            $tLine = $tLine + "\t</head>\n\t<body>\n";
            $tLine = $tLine + "\t\t<div id=\"content\">Getting Ready! Go again!</div>\n";
            $tLine = $tLine + "\t\t<div id=\"mesharea\">Getting Ready! Go again!</div>\n";

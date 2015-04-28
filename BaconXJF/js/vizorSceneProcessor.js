@@ -50,15 +50,36 @@ function processVizorScene(data)
 	var zip = new JSZip();
 	zip.file(jFileName, vizorContent);
 
-	//Test Canvas Save
-	var savable = new Image();
-	var canvas = document.getElementById("icanvas");
-	var ctx = canvas.getContext("2d");
-	paintVizorMeshImage(ctx);
-	savable.src = canvas.toDataURL();
-		//	var img = zip.folder("images");
-		//	img.file("squares.png", savable.src.substr(savable.src.indexOf(',')+1), {base64: true});
-	zip.file("squares.png", savable.src.substr(savable.src.indexOf(',')+1), {base64: true});
+	//Waiting for mesh data to load
+	var timeOut = 0;
+	while(mdLenFnd < mdLen && timeOut < 100000) timeOut++;
+
+	if(timeOut>= 100000)
+	{
+		alert("Vizor Scene Processor timed out while\nwhile waiting for mesh data to load.");
+		return;
+	}
+
+	for(var i=0; i<mdLen; i++)
+	{
+		var mesh = meshData[i];
+		
+		//Create Vertex PNG file and add it to the ZIP file.
+		var vertImage = createFloat32PNG(mesh.vertices);
+		zip.file((mesh.meshname + "_v" + mesh.idx + ".png"), vertImage.src.substr(vertImage.src.indexOf(',')+1), {base64: true});
+
+		//Create Normals PNG file and add it to the ZIP file.
+		var normImage = createFloat32PNG(mesh.normals);
+		zip.file((mesh.meshname + "_n" + mesh.idx + ".png"), normImage.src.substr(normImage.src.indexOf(',')+1), {base64: true});
+
+		//Create multiple uv map PNG files and add them to the ZIP file.
+		for(var j=0; j<mesh.uvMaps.length; j++)
+		{
+			var uvmap   = mesh.uvMaps[j];
+			var uvImage = createFloat32PNG(uvmap.uvcoords);
+			zip.file((mesh.meshname + "_t" + j + ".png"), uvImage.src.substr(uvImage.src.indexOf(',')+1), {base64: true});
+		}
+	}
 
 	var content = zip.generate({type:"blob"});
 
@@ -69,29 +90,11 @@ function processVizorScene(data)
 function loadVizorMeshFile(data)
 {
 	meshData[data.idx] = data;
-//	var meshContent = JSON.stringify(data);
-//	document.getElementById('mesharea').innerHTML = meshContent;
-
+	mdLenFnd++;
 }
 
 function readVizorMeshImage(data)
 {
-}
-
-/* FILL CANVAS WITH IMAGE DATA */
-function pngCanvasDraw(ctx, x, y, w, h, c) {
-	ctx.beginPath();
-	ctx.rect(x, y, w, h);
-	ctx.strokeStyle = c;
-	ctx.stroke();
-}
-
-function paintVizorMeshImage(ctx)
-{
-	pngCanvasDraw(ctx, 0, 0, 32, 32, "black");
-	pngCanvasDraw(ctx, 4, 4, 16, 16, "red");
-	pngCanvasDraw(ctx, 8, 8, 16, 16, "green");
-	pngCanvasDraw(ctx, 12, 12, 16, 16, "blue");
 }
 
 function storeVizorSceneFile(data)
