@@ -1,0 +1,706 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Aaron Bergstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+BaconXJF X3D Functions
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
+*/
+
+global string $bcnFormat[];
+global int $expFormatBaconXJF;
+global int $depBxjf;
+global string $expListBxjf[];
+global int $isMayaLtBxjf;
+global string $matsBxjf[];
+global string $imgsBxjf[];
+global string $sndsBxjf[];
+global string $bxjfType;
+global string $sgGroups[];
+
+/////////////////////////////////////////////////////////////
+/***********************************************************
+X3D Format Exporter
+************************************************************/
+global proc writeX3DHeaderBaconXJF(string $fileFormat)
+{
+global int $depBxjf;
+global string $bxjfType;
+
+    switch($fileFormat)
+    {
+        case "x3dvFileFormat":
+            $bxjfType = "X3DC";
+            prtLineBxjf "#X3D V3.3 utf8";
+            prtLineBxjf "PROFILE Interchange";
+            break;
+        case "x3djFileFormat":
+            $bxjfType = "X3DJ";
+            prtLineBxjf (getArrHead());
+            $depBxjf++;
+            prtLineBxjf (getNamelessObjHead());
+            $depBxjf++;
+            prtLineBxjf (getObjHead("X3D"));
+            $depBxjf++;
+            prtLineBxjf (getNVPrStr("@profile","Interchange",","));
+            prtLineBxjf (getNVPrStr("@version","3.3",","));
+            prtLineBxjf (getNVPrStr("@xsd:noNamespaceSchemaLocation", "http://www.web3d.org/specifications/x3d-3.3.xsd",""));
+            break;
+        case "x3dxFileFormat":
+            $bxjfType = "X3DX";
+            prtLineBxjf "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+            prtLineBxjf "<!DOCTYPE X3D PUBLIC \"ISO//Web3D//DTD X3D 3.0//EN\"  \"http://www.web3d.org/specifications/x3d-3.0.dtd\">";
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlFltField("version", 3.3);
+            $x3dArray[size($x3dArray)] = getXmlStrField("profile", "Interchange");
+            prtLineBxjf(getXmlStartTag("X3D", $x3dArray, false));
+            break;
+        case "x3dhFileFormat":
+            $bxjfType = "X3DH";
+            prtLineBxjf "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+            prtLineBxjf "<!DOCTYPE X3D PUBLIC \"ISO//Web3D//DTD X3D 3.0//EN\"  \"http://www.web3d.org/specifications/x3d-3.0.dtd\">";
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlFltField("version", 3.3);
+            $x3dArray[size($x3dArray)] = getXmlStrField("profile", "Interchange");
+            prtLineBxjf(getXmlStartTag("X3D", $x3dArray, false));
+            break;
+        default:
+            prtLineBxjf "Failure Start";
+            break;
+    }
+}
+
+global proc writeX3DMetadataBaconXJF(string $fileFormat)
+{
+global string $expFilePathBaconXJF[];
+global int $depBxjf;
+
+    switch($fileFormat)
+    {
+        case "x3dvFileFormat":
+            string $metaInfo =  "META \"filename\" \"" + $expFilePathBaconXJF[2] + "\"";
+            prtLineBxjf $metaInfo;
+            break;
+        case "x3djFileFormat":
+            prtLineBxjf(getArrHeadNamed("head"));
+            $depBxjf++;
+            prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+            prtLineBxjf(getObjHead("meta"));
+            $depBxjf++;
+            prtLineBxjf (getNVPStr("@content", $expFilePathBaconXJF[2], ","));
+            prtLineBxjf (getNVPStr("@name", "filename",""));
+            $depBxjf--;
+            prtLineBxjf (getObjFoot(""));
+            $depBxjf--;
+            prtLineBxjf (getObjFoot(""));
+            $depBxjf--;
+            prtLineBxjf (getArrFoot(","));
+            prtLineBxjf (getArrHeadNamed("Scene"));
+            $depBxjf++;
+            prtLineBxjf (getNamelessObjHead());
+            $depBxjf++;
+            break;
+        case "x3dxFileFormat":
+            $depBxjf++;
+            string $empty[];
+            string $x3dString = getXmlStartTagNF("head");
+            prtLineBxjf($x3dString);
+            
+            $depBxjf++;
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlStrField("name", "filename");
+            $x3dArray[size($x3dArray)] = getXmlStrField("content", $expFilePathBaconXJF[2]);
+            prtLineBxjf(getXmlStartTag("meta", $x3dArray, true));
+            
+            $depBxjf--;
+            prtLineBxjf(getXmlEndTag("head",""));
+            break;
+        case "x3dhFileFormat":
+            $depBxjf++;
+            string $empty[];
+            prtLineBxjf(getXmlStartTagNF("head"));
+            
+            $depBxjf++;
+            string $x3dArray[];
+            $x3dArray[size($x3dArray)] = getXmlStrField("name", "filename");
+            $x3dArray[size($x3dArray)] = getXmlStrField("content", $expFilePathBaconXJF[2]);
+            prtLineBxjf(getXmlStartTag("meta", $x3dArray, true));
+            
+            $depBxjf--;
+            prtLineBxjf(getXmlEndTag("head",""));
+            break;
+        default:
+            prtLineBxjf "Failure Start";
+            break;
+    }
+    
+}
+
+global proc string getX3DTextureBaconXJF(string $texture, string $fileFormat, string $bcnEnd)
+{
+	string $imgStr;
+	string $nType = `nodeType $texture`;
+	switch($nType)
+	{
+		case "file":
+			$matStr = bacon_xjf_x3d_file($texture, $fileFormat, $bcnEnd);
+			break;
+		case "movie":
+			$matStr = bacon_xjf_x3d_movie($texture, $fileFormat, $bcnEnd);
+			break;
+		default:
+			break;
+	}
+	return $matStr;
+}
+	
+global proc string getX3DMaterialBaconXJF(string $material, string $fileFormat, string $bcnEnd)
+{
+	string $matStr;
+	string $nType = `nodeType $material`;
+	switch($nType)
+	{
+		case "phong":
+			$matStr = bacon_xjf_x3d_phong($material, $fileFormat, $bcnEnd);
+			break;
+		case "cgfxShader":
+			$matStr = bacon_xjf_x3d_cgfx($material, $fileFormat, $bcnEnd);
+			break;
+		case "ilrOccSampler":
+			$matStr = bacon_xjf_x3d_ilrocc($material, $fileFormat, $bcnEnd);
+			break;
+		case "particleCloud":
+			$matStr = bacon_xjf_x3d_particlecloud($material, $fileFormat, $bcnEnd);
+			break;
+		case "ShaderfxShader":
+			$matStr = bacon_xjf_x3d_shaderfx($material, $fileFormat, $bcnEnd);
+			break;
+		default:
+			break;
+	}
+	return $matStr;
+}
+	
+global proc writeX3DMaterialsBaconXJF(string $fileFormat)
+{
+global int $depBxjf;
+global string $matsBxjf[];
+	$matsBxjf = `ls -mat`;
+	string $matStr[];
+	for($mat in $matsBxjf)
+	{
+		string $nType = `nodeType $mat`;
+		//string 
+		switch($nType)
+		{
+			case "phong":
+				$matStr[size($matStr)] = $mat;
+				break;
+			case "cgfxShader":
+				$matStr[size($matStr)] = $mat;
+				break;
+			case "ilrOccSampler":
+				$matStr[size($matStr)] = $mat;
+				break;
+			case "particleCloud":
+				$matStr[size($matStr)] = $mat;
+				break;
+			case "ShaderfxShader":
+				$matStr[size($matStr)] = $mat;
+				break;
+			default:
+				break;
+		}
+	}
+
+	switch($fileFormat)
+	{
+		case "x3djFileFormat":
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+			prtLineBxjf(getObjHead("Script"));
+			$depBxjf++;
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+            prtLineBxjf(getNVPStr("@DEF", "MaterialsBxjf", ","));
+			prtLineBxjf(getArrHeadNamed("-field"));
+            $depBxjf++;
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+			prtLineBxjf(getObjHead("field"));
+			$depBxjf++;
+            prtLineBxjf(getNVPStr("@name", "materials", ","));
+            prtLineBxjf(getNVPStr("@type", "MFNode", ","));
+            prtLineBxjf(getNVPStr("@accessType","initializeOnly",","));
+			prtLineBxjf(getArrHeadNamed("@value"));
+            $depBxjf++;
+            
+            int $i;
+            int $s = size($matStr);
+            string $bcnEnd = ",";
+			for($i=0; $i<$s; $i++)
+			{
+				if($i==($s-1)) $bcnEnd="";
+				string $matForExport = getX3DMaterialBaconXJF($matStr[$i], $fileFormat, $bcnEnd);
+				prtLineBxjf($matForExport);
+			}
+			
+            $depBxjf--;
+            prtLineBxjf(getArrFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+            $depBxjf--;
+            prtLineBxjf(getArrFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(","));
+			break;
+		case "x3dvFileFormat":
+			break;
+		case "x3dxFileFormat":
+			break;
+		case "x3dhFileFormat":
+			break;
+		default:
+			break;
+	}
+}
+	
+global proc writeX3DTexturesBaconXJF(string $fileFormat)
+{
+global int $depBxjf;
+global string $imgsBxjf[];
+	$imgsBxjf = `ls -tex`;
+	string $imgStr[];
+	for($img in $imgsBxjf)
+	{
+		string $nType = `nodeType $img`;
+		switch($nType)
+		{
+			case "file":
+				$imgStr[size($imgStr)] = $img;
+				break;
+			case "movie":
+				$imgStr[size($imgStr)] = $img;
+				break;
+			default:
+				break;
+		}
+	}
+
+	switch($fileFormat)
+	{
+		case "x3djFileFormat":
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+			prtLineBxjf(getObjHead("Script"));
+			$depBxjf++;
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+            prtLineBxjf(getNVPStr("@DEF", "TextureFilesBxjf", ","));
+			prtLineBxjf(getArrHeadNamed("-field"));
+            $depBxjf++;
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+			prtLineBxjf(getObjHead("field"));
+			$depBxjf++;
+            prtLineBxjf(getNVPStr("@name", "textures", ","));
+            prtLineBxjf(getNVPStr("@type", "MFNode", ","));
+            prtLineBxjf(getNVPStr("@accessType","initializeOnly",","));
+			prtLineBxjf(getArrHeadNamed("@value"));
+            $depBxjf++;
+            
+            int $i;
+            int $s = size($imgStr);
+            string $bcnEnd = ",";
+			for($i=0; $i<$s; $i++)
+			{
+				if($i==($s-1)) $bcnEnd="";
+				string $texForExport = getX3DTextureBaconXJF($imgStr[$i], $fileFormat, $bcnEnd);
+				prtLineBxjf($texForExport);
+			}
+			
+            $depBxjf--;
+            prtLineBxjf(getArrFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+            $depBxjf--;
+            prtLineBxjf(getArrFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(","));
+			break;
+		case "x3dvFileFormat":
+			break;
+		case "x3dxFileFormat":
+			break;
+		case "x3dhFileFormat":
+			break;
+		default:
+			break;
+	}
+}
+
+global proc writeX3DAudioClipsBaconXJF(string $fileFormat)
+{
+global int $depBxjf;
+global string $audioBxjf[];
+	$audioBxjf = `ls -type "audio"`;
+
+	switch($fileFormat)
+	{
+		case "x3djFileFormat":
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+			prtLineBxjf(getObjHead("Script"));
+			$depBxjf++;
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+            prtLineBxjf(getNVPStr("@DEF", "AudioFilesBxjf", ","));
+			prtLineBxjf(getArrHeadNamed("-field"));
+            $depBxjf++;
+			prtLineBxjf(getNamelessObjHead());
+            $depBxjf++;
+			prtLineBxjf(getObjHead("field"));
+			$depBxjf++;
+            prtLineBxjf(getNVPStr("@name", "audioClips", ","));
+            prtLineBxjf(getNVPStr("@type", "MFNode", ","));
+            prtLineBxjf(getNVPStr("@accessType","initializeOnly",","));
+			prtLineBxjf(getArrHeadNamed("@value"));
+            $depBxjf++;
+            
+            int $i;
+            int $s = size($audioBxjf);
+            string $bcnEnd = ",";
+			for($i=0; $i<$s; $i++)
+			{
+				if($i==($s-1)) $bcnEnd="";
+				string $audForExport = bacon_xjf_x3d_audio($audioBxjf[$i], $fileFormat, $bcnEnd);
+				prtLineBxjf($audForExport);
+			}
+			
+            $depBxjf--;
+            prtLineBxjf(getArrFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+            $depBxjf--;
+            prtLineBxjf(getArrFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));			
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(""));
+			$depBxjf--;
+			prtLineBxjf(getObjFoot(","));
+			break;
+		case "x3dvFileFormat":
+			break;
+		case "x3dxFileFormat":
+			break;
+		case "x3dhFileFormat":
+			break;
+		default:
+			break;
+	}
+}
+
+global proc writeX3DSceneGraphBaconXJF(string $fileFormat)
+{
+global string $sgGroups[];
+	int $i;
+	int $s = size($sgGroups);
+	string $bcnEnd = ",";
+	for($i=0; $i<$s; $i++)
+	{
+		if($i == ($s-1))
+		{
+			int $hasRoutes = checkForRoutesBaconXJF();
+			if($hasRoutes == false) $bcnEnd = "";
+		}
+		traverseSGx3dBaconXJF($sgGroups[$i], "", $bcnEnd, $fileFormat);
+	}
+}
+
+global proc int checkForRoutesBaconXJF()
+{
+	int $hasRoutes = false;
+	return $hasRoutes;
+}
+
+global proc writeX3DInterpolatorsBaconXJF(string $fileFormat)
+{
+}
+
+global proc writeX3DRoutesBaconXJF(string $fileFormat)
+{
+}
+
+global proc writeX3DFooterBaconXJF(string $fileFormat)
+{
+global int $depBxjf;
+
+    switch($fileFormat)
+    {
+        case "x3dvFileFormat":
+            break;
+        case "x3djFileFormat":
+            $depBxjf--;
+            prtLineBxjf(getObjFoot("}"));
+            $depBxjf--;
+            prtLineBxjf(getObjFoot("}"));
+            $depBxjf--;
+            prtLineBxjf(getArrFoot(""));
+            break;
+        case "x3dxFileFormat":
+            $depBxjf--;
+            prtLineBxjf(getXmlEndTag("X3D",""));
+            break;        
+        case "x3dhFileFormat":
+            $depBxjf--;
+            prtLineBxjf(getXmlEndTag("X3D",""));
+            break;        
+        default:
+            prtLineBxjf "Failure End";
+            break;
+    }    
+}
+
+global proc processX3DBaconXJF(string $fileFormat)
+{
+	writeX3DHeaderBaconXJF($fileFormat);
+	writeX3DMetadataBaconXJF($fileFormat);
+	writeX3DMaterialsBaconXJF($fileFormat);
+	writeX3DTexturesBaconXJF($fileFormat);
+	writeX3DAudioClipsBaconXJF($fileFormat);
+	writeX3DSceneGraphBaconXJF($fileFormat);
+	writeX3DInterpolatorsBaconXJF($fileFormat);
+	writeX3DRoutesBaconXJF($fileFormat);
+	writeX3DFooterBaconXJF($fileFormat);
+}
+
+global proc string expAnalyzeForX3DLeafBaconXJF(string $node)
+{
+	string $nType = `nodeType $node`;
+	if($nType == "transform")
+	{
+		if(`attributeExists "x3d_sound" $node`) return "Sound";
+
+		string $myChildren[] = `listRelatives -children $node`;
+    	int $cSize = size($myChildren);
+    
+    	if($cSize > 0)
+    	{
+        	string $typeName = `nodeType $myChildren[0]`;
+        	switch($typeName)
+       		{
+            	case "directionalLight":
+                	return "DirectionalLight";
+                	break;
+            	case "spotLight":
+                	return "SpotLight";
+                	break;
+            	case "ambientLight": // Is an ambient light, but I haven't figured out yet how to represent it in X3D
+                	return "PointLight";
+                	break;
+            	case "pointLight":
+                	return "PointLight";
+                	break;
+            	case "camera":
+                	return "Viewpoint";
+                	break;
+            	default:
+            		return "Transform";
+                	break;
+        	}
+    	}
+    }
+    else
+    {
+	    switch($nType)
+    	{
+			case "joint":
+				return "HAnim";
+				break;
+        	case "mesh":
+        		//check for character mesh connections
+            	return "Shape";
+            	break;
+            case "lod":
+            	return "LOD";
+            	break;
+        	default:
+            	return "none";
+            	break;
+    	}
+    }
+    return "none";
+}
+
+global proc writeX3DTransformBranch(string $gBxjf, string $cf)
+{
+global int $depBxjf;
+global string $expListBxjf[];
+    $depBxjf++;
+    if(!`attributeExists "bcnco" $gBxjf`)
+    {
+        addAttr -ln "bcnCloneOf" -sn "bcnco" -dt "string" $gBxjf;
+        setAttr ($gBxjf + ".bcnco") -type "string" $gBxjf;
+        $expListBxjf[size($expListBxjf)] = $gBxjf;
+        
+        string $nf[];
+        $nf[size($nf)] = getXmlStrField("DEF", $gBxjf);
+        if($cf != "") $nf[size($nf)] = getXmlStrField("containerField", $cf);
+        
+        prtLineBxjf(getXmlStartTag("Transform", $nf, false));
+        prtLineBxjf(getXmlEndTag("Transform", ""));
+    }
+    else
+    {
+        string $nf[];
+        $nf[size($nf)] = getXmlStrField("USE", $gBxjf);
+        if($cf != "") $nf[size($nf)] = getXmlStrField("containerField", $cf);
+        
+        prtLineBxjf(getXmlStartTag("Transform", $nf, true));
+    }
+
+}
+
+global proc traverseSGx3dBaconXJF(string $nodeName, string $cField, string $bcnEnd, string $fileFormat)
+{
+global int $depBxjf;
+    string $nodeType = expAnalyzeForX3DLeafBaconXJF($nodeName);
+	string $uChildren[];
+    
+    switch($nodeType)
+    {
+        //Is Transform with Light Leaf
+        case "DirectionalLight":
+        	string $dirlight = bacon_xjf_x3d_dirlight($nodeName, $fileFormat, $cField, $bcnEnd);
+            prtLineBxjf $dirlight;
+            break;
+                    
+        case "SpotLight":
+        	string $sptlight = bacon_xjf_x3d_sptlight($nodeName, $fileFormat, $cField, $bcnEnd);
+            prtLineBxjf $sptlight;
+            break;
+
+        case "PointLight":
+        	string $pntlight = bacon_xjf_x3d_pntlight($nodeName, $fileFormat, $cField, $bcnEnd);
+            prtLineBxjf $pntlight;
+            break;
+                
+        case "Shape":
+        	string $mText = bacon_xjf_x3d_mesh($nodeName, $fileFormat, $cField, $bcnEnd);
+            prtLineBxjf $mText;
+            break;
+            
+        case "Sound":
+        	string $sText = bacon_xjf_x3d_sound($nodeName, $fileFormat, $cField, $bcnEnd);
+            prtLineBxjf $sText;
+        	break;
+
+        //Default is Standard Transform Node
+        case "Transform":
+        	if($fileFormat == "x3djFileFormat")
+        	{
+				string $tc[] = `listRelatives -children $nodeName`;
+				for($t in $tc)
+				{
+					if(`getAttr($t + ".visibility")`) $uChildren[size($uChildren)] = $t;
+				}
+				string $tText = bacon_xjf_x3d_transform_head($nodeName, $fileFormat, $bcnEnd);
+				prtLineBxjf $tText;
+				$depBxjf++;
+				
+				string $tBcnEnd = ",";
+				int $it;
+				int $st = size($uChildren);
+				for($it=0; $it<$st; $it++)
+				{
+					if($it == ($st-1)) $tBcnEnd = "";
+					traverseSGx3dBaconXJF($uChildren[$it], "children", $tBcnEnd, $fileFormat);
+				}
+				
+				$depBxjf--;
+				$tText = bacon_xjf_x3d_transform_foot($nodeName, $fileFormat, $bcnEnd);
+				prtLineBxjf $tText;
+			}
+            break;
+
+        case "LOD":
+        	if($fileFormat == "x3djFileFormat")
+        	{
+				string $lc[] = `listRelatives -children $nodeName`;
+				for($l in $lc)
+				{
+					if(`getAttr($l + ".visibility")`) $uChildren[size($uChildren)] = $l;
+				}
+				string $lText = bacon_xjf_x3d_lod_head($nodeName, $fileFormat, $bcnEnd);
+				prtLineBxjf $lText;
+				$depBxjf++;
+				
+				string $lBcnEnd = ",";
+				int $il;
+				int $sl = size($uChildren);
+				for($il=0; $il<$sl; $il++)
+				{
+					if($il == ($sl-1)) $lBcnEnd = "";
+					traverseSGx3dBaconXJF($uChildren[$il], "children", $lBcnEnd, $fileFormat);
+				}
+				
+				$depBxjf--;
+				$lText = bacon_xjf_x3d_lod_foot($nodeName, $fileFormat, $bcnEnd);
+				prtLineBxjf $lText;
+			}
+            break;
+        case "HAnim":
+        	string $cText = bacon_xjf_x3d_character($nodeName, $fileFormat, $cField, $bcnEnd);
+            prtLineBxjf $cText;
+            break;
+
+        default:
+            break;
+    }
+    
+    
+}
+
+global proc bacon_xjf_x3d()
+{
+	print "Sourcing bacon_xjf_x3d.mel";
+}
+
+/**********************************************************/
+/////// X3D EXPORTER End ///////////////////////////////////
+////////////////////////////////////////////////////////////

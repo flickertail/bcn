@@ -1,0 +1,342 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Aaron Bergstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+BaconXJF ThreeJS Functions
+bacon_xjf_threejs.mel
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
+*/
+
+global int $depBxjf;
+global string $expBxjfMName[];
+global string $expBxjfID[];
+global int $isMayaLtBxjf;
+
+////////////////////////////////////////////////////////////
+/***********************************************************
+ThreeJS Format Exporter
+***********************************************************/
+global proc string expAnalyzeForThreeJSLeafBaconXJF(string $gBxjf)
+{
+    string $myChildren[] = `listRelatives -children $gBxjf`;
+    if(size($myChildren) == 0) return "Object3D";
+    
+    string $typeName = `nodeType $myChildren[0]`;
+    switch($typeName)
+    {
+        case "directionalLight":
+            return "DirectionalLight";
+            break;
+        case "spotLight":
+            return "SpotLight";
+            break;
+        case "ambientLight":
+            return "AmbientLight";
+            break;
+        case "pointLight":
+            return "PointLight";
+            break;
+        case "camera":
+            return "Camera";
+            break;
+        case "mesh":
+            return "Mesh";
+            break;
+    }
+}
+
+global proc string getHexBaconXJF(int $num)
+{
+    string $strVal = "";
+    switch($num)
+    {
+        case 10:
+            $strVal = $strVal + "a";
+            break;
+        case 11:
+            $strVal = $strVal + "b";
+            break;
+        case 12:
+            $strVal = $strVal + "c";
+            break;
+        case 13:
+            $strVal = $strVal + "d";
+            break;
+        case 14:
+            $strVal = $strVal + "e";
+            break;
+        case 15:
+            $strVal = $strVal + "f";
+            break;
+        default:
+            $strVal = $strVal + $num;
+            break;
+    }
+    return $strVal;
+}
+
+global proc string genUUIDPartBaconXJF(float $cTime, string $c)
+{
+    int $r = ($cTime + (`rand 1` * 16)) % 16;
+
+    string $strVal = "";
+    if($c=="x") $strVal = getHexBaconXJF($r);
+    else
+    {
+        if($r>7) $r = $r-8;
+        $r = $r + 8;
+        $strVal = getHexBaconXJF($r);
+    }
+    return $strVal;
+}
+
+global proc string genUUIDBaconXJF()
+{
+    float $cTime = `currentTime -query`;
+    string $uuid = "";
+    string $rText = "";
+    for($i=0; $i<6; $i++)
+    {
+        $rText = genUUIDPartBaconXJF($cTime, "x");
+        $uuid = $uuid + $rText;
+        $cTime = $cTime / 16;
+    }
+    $uuid = $uuid + "-";
+    for($i=0; $i<4; $i++)
+    {
+        $rText = genUUIDPartBaconXJF($cTime, "x");
+        $uuid = $uuid + $rText;
+        $cTime = $cTime / 16;
+    }
+    $uuid = $uuid + "-4";
+    for($i=0; $i<3; $i++)
+    {
+        $rText = genUUIDPartBaconXJF($cTime, "x");
+        $uuid = $uuid + $rText;
+        $cTime = $cTime / 16;
+    }
+    $uuid = $uuid + "-";
+    $rText = genUUIDPartBaconXJF($cTime, "y");
+    $uuid = $uuid + $rText;
+    $cTime = $cTime / 16;
+    for($i=0; $i<3; $i++)
+    {
+        $rText = genUUIDPartBaconXJF($cTime, "x");
+        $uuid = $uuid + $rText;
+        $cTime = $cTime / 16;
+    }
+    $uuid = $uuid + "-";
+    for($i=0; $i<12; $i++)
+    {
+        $rText = genUUIDPartBaconXJF($cTime, "x");
+        $uuid = $uuid + $rText;
+        $cTime = $cTime / 16;
+    }
+    
+    return $uuid;
+}
+
+global proc string getUUIDBaconXJF(string $gBxjf)
+{
+global string $expBxjfMName[];
+global string $expBxjfID[];
+
+    int $expIdx = -1;
+    int $ebSize = size($expBxjfMName);
+    int $iExpIdx = 0;
+    while($expIdx < 0 && $iExpIdx < $ebSize)
+    {
+        if($gBxjf == $expBxjfMName[$iExpIdx]) $expIdx = $iExpIdx;
+        $iExpIdx++;
+    }
+    string $lUUID = "";
+    if($expIdx == -1)
+    {
+        $expIdx = $ebSize;
+        $lUUID = genUUIDBaconXJF();
+        $expBxjfID[$expIdx] = $lUUID;
+        $expBxjfMName[$expIdx] = $gBxjf;
+    }
+    else $lUUID = $expBxjfID[$expIdx];
+    return $lUUID;
+}
+
+global proc waosBxjf()
+{
+global int $depBxjf;
+    prtLineBxjf "{";
+    $depBxjf++;    
+}
+
+global proc wacsBxjf()
+{
+global int $depBxjf;
+    prtLineBxjf "}";
+    $depBxjf--;        
+}
+
+global proc wacswcBxjf()
+{
+global int $depBxjf;
+    prtLineBxjf "},";
+    $depBxjf--;
+}
+
+global proc writeThreejsMesh(string $gBxjf, string $myChildren[], int $prtComma)
+{
+global int $depBxjf;
+    //ToDo - Write out transform attributes
+    string $sgUUID = getUUIDBaconXJF($gBxjf);
+                    
+    waosBxjf();                    
+    string $ptrans = "\"uuid\": \"" + $sgUUID + "\",";
+    prtLineBxjf $ptrans;
+                    
+    $ptrans = "\"type\": \"Mesh\",";
+    prtLineBxjf $ptrans;
+                    
+    $ptrans = "\"name\": \"" + $gBxjf + "\"";
+                    
+    if(size($myChildren) > 1)
+    {
+        $ptrans = $ptrans + ",";
+        prtLineBxjf $ptrans;
+        $ptrans = "\"children\":";
+        prtLineBxjf $ptrans;
+                    
+        prtLineBxjf "[";
+               
+        //Traverse Children
+        for($idx=1; $idx<size($myChildren); $idx++)
+        {
+            int $hmc = 0;
+            int $myCheck = size($myChildren);
+            $myCheck = $myCheck-1;
+            if($idx < $myCheck) $hmc = 1;
+            int $idt = 0;
+            traverseSGthreejsBaconXJF($myChildren[$idx], $hmc);   
+        }
+                        
+        prtLineBxjf "]";
+    }
+    else prtLineBxjf $ptrans;
+                    
+    $depBxjf--;
+    if($prtComma == 1) wacswcBxjf();
+    else wacsBxjf();
+}
+
+
+//ThreeJS
+global proc traverseSGthreejsBaconXJF(string $gBxjf, int $prtComma)
+{
+global int $isMayaLtBxjf;
+global int $depBxjf;
+    $depBxjf++;
+    int $expIdx  = -1;
+    int $ebSize  =  0;
+    int $iExpIdx =  0;
+    string $myChildren[] = `listRelatives -children $gBxjf`;
+    string $nodeTypeBxjf = `nodeType $gBxjf`;
+    
+    string $sgUUID = "";
+    switch($nodeTypeBxjf)
+    {
+        case "lodGroup":
+            break;
+        case "transform":
+            string $leafTypeBxjf = expAnalyzeForThreeJSLeafBaconXJF($gBxjf);
+            
+            switch($leafTypeBxjf)
+            {
+                //Is Transform with Light Leaf
+                case "DirectionalLight":
+                    $sgUUID = getUUIDBaconXJF($gBxjf);
+                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
+                    prtLineBxjf $tempLine;
+                    break;
+                    
+                case "SpotLight":
+                    $sgUUID = getUUIDBaconXJF($gBxjf);
+                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
+                    prtLineBxjf $tempLine;
+                    break;
+
+                case "PointLight":
+                    $sgUUID = getUUIDBaconXJF($gBxjf);
+                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
+                    prtLineBxjf $tempLine;
+                    break;
+                
+                case "AmbientLight":
+                    $sgUUID = getUUIDBaconXJF($gBxjf);
+                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
+                    prtLineBxjf $tempLine;
+                    break;
+//                case "Mesh":
+//                    writeThreejsMeshBaconXTF($gBxtf, $myChildren, $prtComma);
+//                    break;
+                                        
+                case "Mesh":
+                    writeThreejsMesh($gBxjf, $myChildren, $prtComma);
+                    break;
+
+                //Default is Standard Transform Node
+                case "Object3D":
+                    //ToDo - Write out transform attributes
+                    $sgUUID = getUUIDBaconXJF($gBxjf);
+                    string $ptrans = $leafTypeBxjf + ":" + $gBxjf + ": \"" + $sgUUID + "\"";
+                    prtLineBxjf $ptrans;
+                    //Traverse Children
+                    for($aIdx=1; $aIdx<size($myChildren); $aIdx++)
+                    {
+                        int $hmc = 0;
+                        int $myCheck = size($myChildren);
+                        $myCheck = $myCheck-1;
+                        if($aIdx < $myCheck) $hmc = 1;
+                        int $idt = 0;
+                        traverseSGthreejsBaconXJF($myChildren[$aIdx], $hmc);   
+                    }
+                    break;
+            }
+            break;
+//        case "joint":
+//            string $pjoint = $nodeTypeBxjf + ":" + $gBxjf + ":" + genUUIDBaconXJF();
+//            prtLineBxjf $pjoint;
+//            for($aChild in $myChildren) traverseSGthreejsBaconXJF($aChild, "", 0);
+            break;
+        default:
+//            string $pdefault = $nodeTypeBxjf + ":" + $gBxjf + ":" + genUUIDBaconXJF();
+//            prtLineBxjf $pdefault;
+            break;
+    }
+}
+
+/********************************************************************/
+///////// ThreeJS Exporter End ///////////////////////////////////////
+
+
+global proc bacon_xjf_threejs()
+{
+	print "Sourcing bacon_xjf_threejs.mel";
+}

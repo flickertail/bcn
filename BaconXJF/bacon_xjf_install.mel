@@ -33,16 +33,32 @@ proc mayaBxjfInstall(string $bxjfFolder, string $userScripts)
 		string $xmlScript[];
 		string $impScript[];
 		string $expScript[];
+		string $vzrScript[];
+		string $tjsScript[];
+		string $glfScript[];
+		string $bjsScript[];
+		string $x3dScript[];
+				
+		int $jsnFile = `fopen ($bxjfFolder + "mel/bacon_xjf_json.mel")      "r"`;
+		int $xmlFile = `fopen ($bxjfFolder + "mel/bacon_xjf_xml.mel")       "r"`;
+		int $impFile = `fopen ($bxjfFolder + "mel/bacon_xjf_import.mel")    "r"`;
+		int $expFile = `fopen ($bxjfFolder + "mel/bacon_xjf_export.mel")    "r"`;
+		int $vzrFile = `fopen ($bxjfFolder + "mel/bacon_xjf_vizor.mel")     "r"`;
+		int $tjsFile = `fopen ($bxjfFolder + "mel/bacon_xjf_threejs.mel")   "r"`;
+		int $glfFile = `fopen ($bxjfFolder + "mel/bacon_xjf_gltf.mel")      "r"`;
+		int $bjsFile = `fopen ($bxjfFolder + "mel/bacon_xjf_babylonjs.mel") "r"`;
+		int $x3dFile = `fopen ($bxjfFolder + "mel/bacon_xjf_x3d.mel")       "r"`;
+
 		
-		int $jsnFile = `fopen ($bxjfFolder + "mel/bacon_xjf_json.mel")   "r"`;
-		int $xmlFile = `fopen ($bxjfFolder + "mel/bacon_xjf_xml.mel")    "r"`;
-		int $impFile = `fopen ($bxjfFolder + "mel/bacon_xjf_import.mel") "r"`;
-		int $expFile = `fopen ($bxjfFolder + "mel/bacon_xjf_export.mel") "r"`;
-		
-		int $uJsnFile = `fopen ($userScripts + "bacon_xjf_json.mel")   "w"`;
-		int $uXmlFile = `fopen ($userScripts + "bacon_xjf_xml.mel")    "w"`;
-		int $uImpFile = `fopen ($userScripts + "bacon_xjf_import.mel") "w"`;
-		int $uExpFile = `fopen ($userScripts + "bacon_xjf_export.mel") "w"`;
+		int $uJsnFile = `fopen ($userScripts + "bacon_xjf_json.mel")      "w"`;
+		int $uXmlFile = `fopen ($userScripts + "bacon_xjf_xml.mel")       "w"`;
+		int $uImpFile = `fopen ($userScripts + "bacon_xjf_import.mel")    "w"`;
+		int $uExpFile = `fopen ($userScripts + "bacon_xjf_export.mel")    "w"`;
+		int $uVzrFile = `fopen ($userScripts + "bacon_xjf_vizor.mel")     "w"`;
+		int $uTjsFile = `fopen ($userScripts + "bacon_xjf_threejs.mel")   "w"`;
+		int $uGlfFile = `fopen ($userScripts + "bacon_xjf_gltf.mel")      "w"`;
+		int $uBjsFile = `fopen ($userScripts + "bacon_xjf_babylonjs.mel") "w"`;
+		int $uX3dFile = `fopen ($userScripts + "bacon_xjf_x3d.mel")       "w"`;
 		
 		while ( !`feof($jsnFile)` )
 		{
@@ -67,14 +83,62 @@ proc mayaBxjfInstall(string $bxjfFolder, string $userScripts)
 			fprint $uExpFile $lineRead;
 		}
 		
+		while ( !`feof($vzrFile)` )
+		{
+			string $lineRead = `fgetline $vzrFile`;
+			fprint $uVzrFile $lineRead;
+		}
+
+		while ( !`feof($tjsFile)` )
+		{
+			string $lineRead = `fgetline $tjsFile`;
+			fprint $uTjsFile $lineRead;
+		}
+
+		while ( !`feof($glfFile)` )
+		{
+			string $lineRead = `fgetline $glfFile`;
+			fprint $uGlfFile $lineRead;
+		}
+
+		while ( !`feof($bjsFile)` )
+		{
+			string $lineRead = `fgetline $bjsFile`;
+			fprint $uBjsFile $lineRead;
+		}
+
+		while ( !`feof($x3dFile)` )
+		{
+			string $lineRead = `fgetline $x3dFile`;
+			fprint $uX3dFile $lineRead;
+		}
+
 		fclose $jsnFile;
 		fclose $uJsnFile;
+		
 		fclose $xmlFile;
 		fclose $uXmlFile;
+		
 		fclose $impFile;
 		fclose $uImpFile;
+		
 		fclose $expFile;
 		fclose $uExpFile;	
+
+		fclose $vzrFile;
+		fclose $uVzrFile;	
+
+		fclose $tjsFile;
+		fclose $uTjsFile;	
+
+		fclose $glfFile;
+		fclose $uGlfFile;	
+
+		fclose $bjsFile;
+		fclose $uBjsFile;	
+
+		fclose $x3dFile;
+		fclose $uX3dFile;	
 }
 
 proc mayaLtBxjfInstall(string $bxjfFolder, string $userScripts)
@@ -84,24 +148,32 @@ proc mayaLtBxjfInstall(string $bxjfFolder, string $userScripts)
 	string $xmlScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_xml.mel")`;
 	string $impScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_import.mel")`;
 	string $expScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_export.mel")`;
+	string $vzrScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_vizor.mel")`;
+	string $tjsScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_threejs.mel")`;
+	string $glfScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_gltf.mel")`;
+	string $bjsScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_babylonjs.mel")`;
+	string $x3dScript[] = `freadAllLines ($bxjfFolder + "mel/bacon_xjf_x3d.mel")`;
 	
 	string $bxjfOne = $userScripts + "bacon_xjf_json.mel";
 	string $bxjfTwo = $userScripts + "bacon_xjf_xml.mel";
 	string $bxjfThr = $userScripts + "bacon_xjf_import.mel";
 	string $bxjfFor = $userScripts + "bacon_xjf_export.mel";
+	string $bxjfFiv = $userScripts + "bacon_xjf_vizor.mel";
+	string $bxjfSix = $userScripts + "bacon_xjf_threejs.mel";
+	string $bxjfSvn = $userScripts + "bacon_xjf_gltf.mel";
+	string $bxjfEgt = $userScripts + "bacon_xjf_babylonjs.mel";
+	string $bxjfNin = $userScripts + "bacon_xjf_x3d.mel";
 			
 	fwriteAllLines $bxjfOne $jsnScript;
 	fwriteAllLines $bxjfTwo $xmlScript;
 	fwriteAllLines $bxjfThr $impScript;
 	fwriteAllLines $bxjfFor $expScript;
+	fwriteAllLines $bxjfFiv $vzrScript;
+	fwriteAllLines $bxjfSix $tjsScript;
+	fwriteAllLines $bxjfSvn $glfScript;
+	fwriteAllLines $bxjfEgt $bjsScript;
+	fwriteAllLines $bxjfNin $x3dScript;
 	
-//		int $isWin = `about -windows`;
-		
-//		string $envScript[] = `freadAllLines $envFile`;
-//		if($isWin) $envScript[size($envScript)] = "MAYA_SCRIPT_PATH = $MAYA_SCRIPT_PATH;" + $bxjfFolder;
-//		else       $envScript[size($envScript)] = "MAYA_SCRIPT_PATH = $MAYA_SCRIPT_PATH:" + $bxjfFolder;
-		
-//		fwriteAllLines $envFile $envScript;
 }
 
 global proc bacon_xjf_install()

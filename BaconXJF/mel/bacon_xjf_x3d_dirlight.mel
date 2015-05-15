@@ -1,0 +1,215 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Aaron Bergstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+BaconXJF X3D Direcctinal Light Function
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
+*/
+
+global int $depBxjf;
+
+global proc string bacon_xjf_x3d_dirlight(string $dirlight, string $fileFormat, string $dField, string $bcnEnd)
+{
+global int $depBxjf;
+	string $output = "";
+
+	//Determin whether or not this node has been exported already.
+    int $beenUsed = false;
+
+    string $attribute = $dirlight + ".x3d";
+    if(`attributeExists "x3d" $dirlight`) $beenUsed = `getAttr $attribute`;
+    else
+    {
+        select -ne $dirlight;
+        addAttr -shortName x3d -longName x3dExported -at bool;
+    }
+
+	int $i;    
+    string $dlprint = "";
+    if($beenUsed == true)
+    {
+        switch($fileFormat)
+        {
+            case "x3dvFileFormat":
+//                if($cField != "") $dlprint = $cField + " " + "USE " + `getAttr $gBxjf.name`;
+//                else $dlprint = "USE " + `getAttr $gBxjf.name`;
+//                prtLineBxjf $dlprint;
+                break;
+            case "x3djFileFormat":
+				$output = getNamelessObjHead();
+				$output = $output + "\n";
+
+				$depBxjf++;
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+				$output  = $output + getObjHead("DirectionalLight");
+				$output  = $output +  "\n";
+
+                $depBxjf++;
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getNVPrStr("@USE", $dirlight, "");
+                $output = $output + "\n";
+                
+                $depBxjf--;
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getObjFoot("");
+                $output = $output + "\n";
+                
+                $depBxjf--;
+                $output = $output + getObjFoot($bcnEnd);
+                break;
+            case "x3dxFileFormat":
+//                string $xmlText = "<DirectionalLight USE=\"" + `getAttr $gBxjf.name` + "\"";
+//                if($cField != "") $xmlText = $xmlText + " containerField=\"" + $cField + "\"";
+//                $xmlText = $xmlText + "/>";
+//                prtLineBxjf $xmlText;
+                break;
+            case "x3dhFileFormat":
+//                string $xmlText = "<DirectionalLight USE=\"" + `getAttr $gBxjf.name` + "\"";
+//                if($cField != "") $xmlText = $xmlText + " containerField=\"" + $cField + "\"";
+//                $xmlText = $xmlText + "/>";
+//                prtLineBxjf $xmlText;
+                break;            
+                 
+            default:
+                break;
+        }
+    }
+    else
+    {
+        $beenUsed = true;
+        setAttr $attribute -type bool $beenUsed;
+    
+    	//The child node actually has the light attributes, so you'll need to grab
+    	//that node.
+        string        $pc[] = `listRelatives -children $dirlight`;
+        string        $catt = $pc[0] + ".color";
+         float   $dlColor[] = `getAttr $catt`;
+     
+        string        $iatt = $pc[0] + ".intensity";
+         float    $dlIntens = `getAttr $iatt`;
+         if($dlIntens > 1.0) $dlIntens = 1.0;
+     
+         float  $dlMatrix[] = `xform -q -os -matrix $dirlight`;
+         float $direction[] = {($dlMatrix[8] * -1.0), ($dlMatrix[9] * -1.0), ($dlMatrix[10] * -1.0)};
+
+         string $x3d_intensity = "";
+         if($dlIntens != 0.0 ) $x3d_intensity = "intensity " +  $dlIntens;
+
+         string $x3d_color     = "";
+         if($dlColor[0] != 0.0 && $dlColor[1] != 0.0 && $dlColor[2] != 0.0) $x3d_color = "color " +  $dlColor[0] + " " +  $dlColor[1] + " " +  $dlColor[2];
+     
+         string $x3d_direction = "";      
+         if($direction[0] != 0.0 && $direction[1] != 0.0 && $direction[2] !=  -1.0) $x3d_direction = "direction " +  $direction[0] + " " +  $direction[1] + " " +  $direction[2];
+     
+        switch($fileFormat)
+        {
+            case "x3dvFileFormat":
+/*                string $clString = "";
+                if($cField != "") $clString = $cField + " DEF " + $gBxjf + " DirectionalLight";
+                else $clString = "DEF " + $gBxjf + " DirectionalLight";
+                if($x3d_intensity != "" || $x3d_color != "" || $x3d_direction != "")
+                {
+                    prtLineBxjf $clString;
+                    prtLineBxjf "{";
+                    $depBxjf++;
+                    if($x3d_intensity != "") prtLineBxjf $x3d_intensity;
+                    if($x3d_color     != "") prtLineBxjf $x3d_color;
+                    if($x3d_direction != "") prtLineBxjf $x3d_direction;
+                    $depBxjf--;
+                    prtLineBxjf "}";
+                }
+                else
+                {
+                    $clString = $clString + "{}";
+                    prtLineBxjf $clString;
+                } */
+                break;
+            case "x3djFileFormat":
+            	string $jDirLightFields[];
+            	int    $jdlfSize = 0;
+				$output = getNamelessObjHead();
+				$output = $output + "\n";
+
+				$depBxjf++;
+				for($i=0; $i<$depBxjf; $i++) $output += "\t";
+				$output = $output + getObjHead("DirectionalLight");
+				$output = $output + "\n";
+
+                $depBxjf++;
+                
+				$jDirLightFields[$jdlfSize] = "";
+				for($i=0; $i<$depBxjf; $i++) $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + "\t";
+                $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + getNVPrStr("@DEF", $dirlight, "");
+				$jdlfSize++;
+				
+         		if($dlIntens != 0.0 )
+         		{
+					$jDirLightFields[$jdlfSize] = "";
+					for($i=0; $i<$depBxjf; $i++) $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + "\t";
+	                $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + getNVPrFlt("@intensity", $dlIntens, "");
+					$jdlfSize++;
+         		} //$x3d_intensity = "intensity " +  $dlIntens;
+
+         		if($dlColor[0] != 0.0 && $dlColor[1] != 0.0 && $dlColor[2] != 0.0)
+         		{
+					$jDirLightFields[$jdlfSize] = "";
+					for($i=0; $i<$depBxjf; $i++) $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + "\t";
+	                $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + getNVPrFltArr("@color", {$dlColor[0], $dlColor[1], $dlColor[2]}, "");
+					$jdlfSize++;
+         		}//$x3d_color = "color " +  $dlColor[0] + " " +  $dlColor[1] + " " +  $dlColor[2];
+     
+         		if($direction[0] != 0.0 && $direction[1] != 0.0 && $direction[2] !=  -1.0)
+         		{
+					$jDirLightFields[$jdlfSize] = "";
+					for($i=0; $i<$depBxjf; $i++) $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + "\t";
+	                $jDirLightFields[$jdlfSize] = $jDirLightFields[$jdlfSize] + getNVPrFltArr("@direction", {$direction[0], $direction[1], $direction[2]}, "");
+					$jdlfSize++;
+         		}//$x3d_direction = "direction " +  $direction[0] + " " +  $direction[1] + " " +  $direction[2];
+                
+                for($i=0; $i<$jdlfSize; $i++)
+                {
+                	$output += $jDirLightFields[$i];
+                	if($i < $jdlfSize-1) $output = $output + ",";
+                	$output = $output + "\n";
+                } 
+                
+                $depBxjf--;
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getObjFoot("");
+                $output = $output + "\n";
+                
+                $depBxjf--;
+                $output = $output + getObjFoot($bcnEnd);
+                break;
+            case "x3dxFileFormat":
+                break;
+            case "x3dhFileFormat":
+                break;
+            default:
+                break;
+        }
+    }
+
+
+	return $output;
+}

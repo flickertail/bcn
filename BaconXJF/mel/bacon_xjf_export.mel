@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-BaconXJF JSON Exporter
+BaconXJF 3D Web Formats Exporter
 Author: Aaron Bergstrom 
 E-mail: flickertail@gmail.com
 */
@@ -52,6 +52,7 @@ global string $sepBxjf = "/";
 global string $bxjfType = "";
 global string $bcnFormat[];
 global string $expListBxjf[];
+global string $bxjfUpAxis;
 
 global proc expSetLineValueBaconxXJF()
 {
@@ -162,6 +163,7 @@ global string $sepBxjf;
     
     return $relPath;
 }
+
 global proc printBxjfStatus(string $text)
 {
 	print ("\n" + $text);
@@ -415,1510 +417,6 @@ global proc vector[] bcnGetNormalsPerFace(string $meshName, int $faceCount)
 
 /***********************************************************/
 
-
-/////////////////////////////////////////////////////////////
-/************************************************************
-XML Functions
-************************************************************/
-/*
-global proc string getXmlStartTagNF(string $xmlTagType)
-{
-    string $tagText = "<" + $xmlTagType + ">";
-    return $tagText;
-}
-
-global proc string getXmlStartTag(string $xmlTagType, string $xmlFields[], int $isSelfEnding)
-{
-    string $tagText = "<" + $xmlTagType;
-    
-    int $i;
-    int $s = size($xmlFields);
-    for($i=0; $i<$s; $i++) $tagText = $tagText + " " + $xmlFields[$i];
-    
-    string $tagEnd = ">";
-    if($isSelfEnding == 1) $tagEnd = " />";
-    $tagText = $tagText + $tagEnd;
-    return $tagText;
-}
-
-global proc string getXmlEndTag(string $xmlTagType, string $xmlEndComment)
-{
-    string $tagText = "</" + $xmlTagType + ">";
-    if($xmlEndComment != "") $tagText = $tagText + "<!-- " + $xmlEndComment + " -->";
-    return $tagText;
-}
-
-global proc string getXmlStrField(string $xmlFieldName, string $xmlFieldValue)
-{
-    string $xmlFieldText = $xmlFieldName + "='" + $xmlFieldValue + "'";
-    return $xmlFieldText;
-}
-
-global proc string getXmlStrArrField(string $xmlFieldName, string $xmlFieldValues[])
-{
-    string $xmlFieldText = $xmlFieldName + "='";
-    int $i;
-    int $s = size($xmlFieldValues);
-    for($i=0; $i<$s; $i++)
-    {
-        $xmlFieldText = $xmlFieldText + "\"" + $xmlFieldValues[$i] + "\"";
-        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
-    }
-    $xmlFieldText = $xmlFieldText + "'";
-    return $xmlFieldText;
-}
-
-global proc string getXmlIntField(string $xmlFieldName, int $xmlFieldValue)
-{
-    string $xmlFieldText = $xmlFieldName + "='" + $xmlFieldValue + "'";
-    return $xmlFieldText;
-}
-
-global proc string getXmlIntArrField(string $xmlFieldName, int $xmlFieldValues[])
-{
-    string $xmlFieldText = $xmlFieldName + "='";
-    int $i;
-    int $s = size($xmlFieldValues);
-    for($i=0; $i<$s; $i++)
-    {
-        $xmlFieldText = $xmlFieldText + $xmlFieldValues[$i];
-        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
-    }
-    $xmlFieldText = $xmlFieldText + "'";
-
-    return $xmlFieldText;
-}
-
-global proc string getXmlBoolField(string $xmlFieldName, int $xmlFieldValue)
-{
-    string $xmlFieldText = $xmlFieldName + "='";
-    string $tBool = "true";
-    if($xmlFieldValue == 0) $tBool = "false";
-    $xmlFieldText = $xmlFieldText + $tBool + "'";
-    
-    return $xmlFieldText;
-}
-
-global proc string getXmlBoolArrField(string $xmlFieldName, int $xmlFieldValues[])
-{
-    string $xmlFieldText = $xmlFieldName + "='";
-    int $i;
-    int $s = size($xmlFieldValues);
-    for($i=0; $i<$s; $i++)
-    {
-        string $tBool = "true";
-        if($xmlFieldValues[$i] == 0) $tBool = "false";
-        $xmlFieldText = $xmlFieldText + $tBool;
-        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
-    }
-    $xmlFieldText = $xmlFieldText + "'";
-    
-    return $xmlFieldText;
-}
-
-global proc string getXmlFltField(string $xmlFieldName, float $xmlFieldValue)
-{
-    string $xmlFieldText = $xmlFieldName + "='" + bcnForceFloat($xmlFieldValue) + "'";
-    return $xmlFieldText;
-}
-
-global proc string getXmlFltArrField(string $xmlFieldName, float $xmlFieldValues[])
-{
-    string $xmlFieldText = $xmlFieldName + "='";
-    int $i;
-    int $s = size($xmlFieldValues);
-    for($i=0; $i<$s; $i++)
-    {
-        $xmlFieldText = $xmlFieldText + bcnForceFloat($xmlFieldValues[$i]);
-        if($i<$s-1) $xmlFieldText = $xmlFieldText + " ";
-    }
-    $xmlFieldText = $xmlFieldText + "'";
-
-    return $xmlFieldText;
-}
-*/
-/***********************************************************/
-
-/////////////////////////////////////////////////////////////
-/************************************************************
-JSON Functions
-************************************************************/
-//global proc string getObjectStr(string $bcnObjName)
-//{
-//}
-/*
-global proc string getObjHead(string $bcnName)
-{
-global int $depBxjf;
-    string $hd = "\"" + $bcnName + "\":\n";
-    
-    int $i;
-    for($i=0; $i<$depBxjf; $i++) $hd = $hd + "\t";
-    $hd = $hd + "{";
-
-    return $hd;
-}
-
-global proc string getObjFoot(string $bcnEnd)
-{
-global int $depBxjf;
-    string $ft = "}" + $bcnEnd;
-    
-    return $ft;
-}
-
-global proc string getArrHeadNamed(string $bcnName)
-{
-global int $depBxjf;
-    string $hd = "\"" + $bcnName + "\":\n";
-    
-    int $i;
-    for($i=0; $i<$depBxjf; $i++) $hd = $hd + "\t";
-    $hd = $hd + "[";
-
-    return $hd;
-}
-
-global proc string getArrHead()
-{
-global int $depBxjf;
-    return "[";
-}
-
-global proc string getArrFoot(string $bcnEnd)
-{
-global int $depBxjf;
-    string $ft = "]" + $bcnEnd;
-    
-    return $ft;
-}
-
-global proc string getLeafObj(string $bcnName, string $bcnString[], string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : {";
-    int $i;
-    int $a = size($bcnString);
-    for($item in $bcnString) $rStr = $rStr + $item;
-    $rStr = $rStr + "}" + $bcnEnd;
-    
-    return $rStr;
-}
-
-global proc string getNVPrStr(string $bcnName, string $bcnString, string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : \"" + $bcnString + "\"" + $bcnEnd;
-    return $rStr;
-}
-
-global proc string getNVPrStrArr(string $bcnName, int $bcnString[], string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : [";
-    int $i;
-    int $a = size($bcnString);
-    for($i=0; $i<$a; $i++)
-    {
-        $rStr = $rStr + "\"" + $bcnString[$i] + "\"";
-        if($i < $a-1) $rStr = $rStr + ", ";
-        else          $rStr = $rStr + "]" + $bcnEnd;
-    }
-    
-    return $rStr;
-}
-
-global proc string getNVPrInt(string $bcnName, int $bcnInt, string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : " + $bcnInt + $bcnEnd;
-    return $rStr;
-}
-
-global proc string getNVPrIntArr(string $bcnName, int $bcnInt[], string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : [";
-    int $i;
-    int $a = size($bcnInt);
-    for($i=0; $i<$a; $i++)
-    {
-        $rStr = $rStr + $bcnInt[$i];
-        if($i < $a-1) $rStr = $rStr + ", ";
-        else          $rStr = $rStr + "]" + $bcnEnd;
-    }
-    
-    return $rStr;
-}
-
-global proc string bcnForceFloat(float $bcnFloat)
-{
-    string $fStr = "";
-    if(($bcnFloat - floor($bcnFloat)) > 0) $fStr = $fStr + $bcnFloat;
-    else                                   $fStr = $fStr + floor($bcnFloat) + ".0";
-    
-    return $fStr;
-}
-
-global proc string getNVPrFlt(string $bcnName, float $bcnFloat, string $bcnEnd)
-{
-    string $strFloat = bcnForceFloat($bcnFloat);
-    string $rStr = "\"" + $bcnName + "\" : " + $strFloat + $bcnEnd;
-    return $rStr;
-}
-
-global proc string getNVPrFltArr(string $bcnName, float $bcnFloat[], string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : [";
-    int $i;
-    int $a = size($bcnFloat);
-    for($i=0; $i<$a; $i++)
-    {
-        string $strFloat = bcnForceFloat($bcnFloat[$i]);
-        $rStr = $rStr + $strFloat;
-        if($i < $a-1) $rStr = $rStr + ", ";
-        else          $rStr = $rStr + "]" + $bcnEnd;
-    }
-    
-    return $rStr;
-}
-
-global proc string getNVPrBool(string $bcnName, int $bcnBool, string $bcnEnd)
-{
-    string  $rStr = "\"" + $bcnName + "\" : ";
-    string $tBool = "false";
-    if($bcnBool > 0) $tBool = "true";
-
-    $rStr = $rStr + $tBool + $bcnEnd;
-    
-    return $rStr;
-}
-
-global proc string getNVPrBoolArr(string $bcnName, int $bcnBool[], string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : [";
-    int $i;
-    int $a = size($bcnBool);
-    for($i=0; $i<$a; $i++)
-    {
-        string $tBool = "false";
-        if($bcnBool[$i] > 0) $tBool = "true";
-        $rStr = $rStr + $tBool;
-
-        if($i < $a-1) $rStr = $rStr + ", ";
-        else          $rStr = $rStr + "]" + $bcnEnd;
-    }
-        
-    return $rStr;
-}
-
-global proc string getNVPrNull(string $bcnName, string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : null" + $bcnEnd;
-    return $rStr;
-}
-
-global proc string getNVPrNullArr(string $bcnName, int $a, string $bcnEnd)
-{
-    string $rStr = "\"" + $bcnName + "\" : [";
-    int $i;
-    for($i=0; $i<$a; $i++)
-    {
-        if($i < $a-1) $rStr = $rStr + "null, ";
-        else          $rStr = $rStr + "null]" + $bcnEnd;
-    }
-    
-    return $rStr;
-}
-
-global proc string getNVPrObjArr(string $bcnName, string $bcnString[], string $bcnEnd)
-{
-    string $rStr = "";
-    return $rStr;
-}
-
-//global proc string getNamedValuePair(string $bcnName, string $bcnObjName)
-//{
-//}
-*/
-/***********************************************************/
-
-/////////////////////////////////////////////////////////////
-/************************************************************
-Vizor VR Exporter 
-************************************************************/
-global proc prtVizorMeshBxjf(string $fPath, string $meshName, vector $verts[], vector $norms[], vector $uvs[], int $numOfMaps, int $sIdx)
-{
-global int $isMayaLtBxjf;
-    string $bigString = "";
-    printBxjfStatus("Extracting mesh data for " + $meshName);
-    $bigString = $bigString + "loadVizorMeshFile({\n";
-    $bigString = $bigString + "\t\"idx\":" + $sIdx + ",\n";
-    $bigString = $bigString + "\t\"meshname\":\"" + $meshName + "\",\n";
-    $bigString = $bigString + "\t\"vertices\":[";
-    
-    int $uLen = size($uvs);
-    int $uBase = $uLen - $numOfMaps;
-    
-    int $i;
-    int $j;
-    int $s = size($verts);
-    for($i=0; $i<$s; $i++)
-    {
-        vector $vec = $verts[$i];
-        $bigString = $bigString + bcnForceFloat($vec.x) + "," + bcnForceFloat($vec.y) + "," + bcnForceFloat($vec.z);
-//        $bigString = $bigString + $verts[$i];
-        if($i<$s-1) $bigString = $bigString + ",";
-    }
-    $bigString = $bigString + "],\n";
-
-    $bigString = $bigString + "\t\"normals\":[";
-    $s = size($norms);
-    for($i=0; $i<$s; $i++)
-    {
-        vector $vec = $norms[$i];
-        $bigString = $bigString + bcnForceFloat($vec.x) + "," + bcnForceFloat($vec.y) + "," + bcnForceFloat($vec.z);
-
-//        $bigString = $bigString + $norms[$i];
-        if($i<$s-1) $bigString = $bigString + ",";
-    }
-    if($numOfMaps > 0 )
-    {
-        $bigString = $bigString + "],\n";
-        $bigString = $bigString + "\t\"uvMaps\":\n";
-        $bigString = $bigString + "\t[\n";
-        
-        int $offset = 0;
-        for($j=0; $j<$numOfMaps; $j++)
-        {
-        	$bigString = $bigString + "\t\t{\n";
-            $bigString = $bigString + "\t\t\t\"uvcoords\":[";
-            
-            vector $bVec = $uvs[$uBase+$j];
-            int $epm = int($bVec.x);
-            
-            int $t;
-            for($t=0; $t<$epm; $t++)
-            {
-                vector $tVec = $uvs[$offset+$t];
-                $bigString = $bigString + bcnForceFloat($tVec.x) + "," + bcnForceFloat($tVec.y);
-                if($t < $epm-1) $bigString = $bigString + ",";
-            }
-            $offSet = $offset + $epm;
-            
-            $bigString = $bigString + "]\n";
-        	$bigString = $bigString + "\t\t}";
-        	
-            if($j<$numOfMaps-1) $bigString = $bigString + ",\n";
-            else                $bigString = $bigString + "\n";
-        }
-        
-	    $bigString = $bigString + "\t]\n";
-    }
-    else            $bigString = $bigString + "]\n";
-
-    $bigString = $bigString + "});";
-
-    if($isMayaLtBxjf == false)
-    {
-        int $fID= `fopen $fPath`;
-        fprint $fID $bigString;
-        fclose $fID;
-    }
-    else fwriteAllText $fPath $bigString;
-}
-
-global proc prtVizorHTMLBxjf()
-{
-global string $vizorHtmlPathBaconXJF;
-global string $fPartNoFExt;
-global    int $isMayaLtBxjf;
-global string $sepBxjf;
-global string $bxjfShapes[];
-	printBxjfStatus("Writing out Vizor HTML file.");
-
-    string $relScript = getRelativePathToBaconXJF($vizorHtmlPathBaconXJF);
-	string $vspScript = $relScript + "js/vizorSceneProcessor.js";
-
-    string $tLine = "<html>\n\t<head>\n";
-           $tLine = $tLine + "\t\t<title>BaconXJF 3D Web Formats Exporter - Vizor.io Format</title>\n";
-           $tLine = $tLine + "\t\t<script>\n";
-           $tLine = $tLine + "\t\t\tvar mdLen = " + size($bxjfShapes) + ";\n";
-           $tLine = $tLine + "\t\t\tvar mdLenFnd = 0;\n";
-           $tLine = $tLine + "\t\t\tvar meshData = new Array(mdLen);\n";
-           $tLine = $tLine + "\t\t</script>\n";
-           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/jszip/dist/jszip.js\" type=\"text/javascript\"></script>\n";
-           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/jszip/vendor/FileSaver.js\" type=\"text/javascript\"></script>\n";
-           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/node-jspack/jspack.js\" type=\"text/javascript\"></script>\n";
-           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/bcnBtzImgGen.js\" type=\"text/javascript\"></script>\n";
-           $tLine = $tLine + "\t</head>\n\t<body>\n";
-           $tLine = $tLine + "\t\t<div id=\"content\">Getting Ready! Go again!</div>\n";
-           $tLine = $tLine + "\t\t<div id=\"mesharea\">Getting Ready! Go again!</div>\n";
-           $tLine = $tLine + "\t\t<canvas id=\"icanvas\"></canvas>\n";
-           $tLine = $tLine + "\t\t<script src=\"" + $vspScript + "\"></script>\n";
-           for($name in $bxjfShapes) $tLine = $tLine + "\t\t<script src=\"./" + $fPartNoFExt + "_" + $name + ".bcnbtz?callback=loadVizorMeshFile\"></script>\n";
-           $tLine = $tLine + "\t\t<script src=\"./" + $fPartNoFExt + ".vzrwrp?callback=processVizorScene\"></script>\n";
-           $tLine = $tLine + "\t</body>\n</html>\n";
-    
-    if($isMayaLtBxjf == false)
-    {
-        int $vizorHtmlFIDBaconXJF = `fopen $vizorHtmlPathBaconXJF "w"`;
-        fprint $vizorHtmlFIDBaconXJF $tLine;
-        fclose $vizorHtmlFIDBaconXJF;
-    }
-    else fwriteAllText $vizorHtmlPathBaconXJF $tLine;
-}
-
-global proc float[] sortVizorPtCloud(vector $ptCloud[], int $vIdx[])
-{
-    printBxjfStatus("Sorting Point Data for Triangle Mesh Export.");
-    float $sorted[];
-    int $s = size($vIdx);
-    int $i;
-    for($i=0; $i<$s; $i++)
-    {
-        if($vIdx[$i] != -1)
-        {
-            vector $tVec = $ptCloud[$vIdx[$i]];
-            $sorted[size($sorted)] = $tVec.x;
-            $sorted[size($sorted)] = $tVec.y;
-            $sorted[size($sorted)] = $tVec.z;
-        }
-    }
-    return $sorted;
-}
-
-global proc writeVzrMaterialsBxjf()
-{
-global int $depBxjf;
-global string $sepBxjf;
-global string $vizorHtmlPathBaconXJF;
-global string $bxjfShapes[];
-global string $expFilePathBaconXJF[];
-global string $fPartNoFExt;
-
-    string $mats[];
-    string $umats[];
-    string $shps[];
-    string $cams[];
-    string $lits[];
-    string $sels[] = `ls -l -shapes -v`;
-    int    $slen   = size($sels);
-    float  $minBB[] = {0.0, 0.0, 0.0};
-    float  $maxBB[] = {0.0, 0.0, 0.0};
-    string $uvMaps[];
-    
-//    $mats = `listConnections -type "shadingEngine" $shps`;
-    $mats = `ls -mat`;
-    int $mCount = 0;
-    for($node in $mats)
-    {
-        string $matType = `nodeType -api $node`;
-        if($matType == "kPhong") $umats[$mCount] = $node;
-    }
-    
-    prtLineBxjf(getObjHead("materials"));
-    $depBxjf++;
-    int $i = 0;
-    for($node in $umats)
-    {
-        if(`nodeType -api $node` == "kPhong")
-        {
-		    printBxjfStatus("Exporting Material Node: " + $node + ".\n");
-            prtLineBxjf(getObjHead($node));
-            $depBxjf++;
-    
-            string  $trpStr = $node + ".transparency";
-            string  $ambStr = $node + ".ambientColor";
-            float    $trp[] = `getAttr $trpStr`;
-            float     $ac[] = `getAttr $ambStr`;
-            float $ambFlt[] = {$ac[0], $ac[1], $ac[2], (1.0-(($trp[0] + $trp[1] + $trp[2])/3.0))};
-            prtLineBxjf(getNVPrFltArr("ambient_color", $ambFlt, ","));
-            
-            float     $dc[] = `getAttr ($node + ".color")`;
-            float $difFlt[] = {$dc[0], $dc[1], $dc[2], (1.0-(($trp[0] + $trp[1] + $trp[2])/3.0))};
-            prtLineBxjf(getNVPrFltArr("diffuse_color", $difFlt, ","));
-            
-            int $bfc = 0;
-            if(`getAttr ($sels[$i] + ".backfaceCulling")` == 1) $bfc = 1;
-            prtLineBxjf(getNVPrBool("double_sided", $bfc, ","));
-            
-            string $extImage1[] = `defaultNavigation -defaultTraversal -destination ($node+".color")`;
-            string $extImage2[] = `defaultNavigation -defaultTraversal -destination ($node+".normalCamera")`;
-            int $dmt1 = size($extImage1);
-            int $dmt2 = size($extImage2);
-            
-            int $shinyness = `getAttr ($node + ".reflectivity")`;
-            if($dmt1 > 0 || $dmt2 > 0) prtLineBxjf(getNVPrFlt("shinyness", $shinyness, ","));
-            else                       prtLineBxjf(getNVPrFlt("shinyness", $shinyness,  ""));
-            
-            $uvMaps = `polyUVSet -q -auv $sels[$i]`;
-
-            int $di;
-            string $iInfo1[];
-            for($di=0; $di<$dmt1; $di++)
-            {
-                int $uvIdx = 0;
-                string $uvSetPlug[] = `uvLink -queryObject $sels[$i] -texture $extImage1[$di]`;
-
-                int $fIdx = -1;
-                int $cc = size($uvMaps);
-                int $cci;
-                string $mapName = `getAttr $uvSetPlug[0]`;
-                for($cci=0; $cci<$cc; $cci++)
-                {
-                    if($mapName == $uvMaps[$cci]) $fIdx = $cci;
-                }
-                
-                if($fIdx == -1)
-                {
-                    $fIdx = $cc;
-                    $uvMaps[$cc] = $mapName;
-                }
-
-                string $pathAttr = $extImage1[$di] + ".fileTextureName";
-                string $extImageFilePath = `getAttr $pathAttr`;
-                string $relativePath = getRelativePathToAnotherFile($extImageFilePath, $vizorHtmlPathBaconXJF);
-                $iInfo1[size($iInfo1)] = getNVPrStr("url", $relativePath, ",");
-                
-                if($di<$dmt1-1) $iInfo1[size($iInfo1)] = getNVPrInt("uv_idx", $fIdx, ",");
-                else  $iInfo1[size($iInfo1)] = getNVPrInt("uv_idx", $fIdx, "");
-
-            }
-            if($dmt1 > 0)
-            {
-                string $endItem = "";
-                if($dmt2 > 0 ) $endItem = ",";
-                prtLineBxjf(getLeafObj("diffuse_color_map", $iInfo1, $endItem));
-            }
-            
-            string $iInfo2[];
-            for($di=0; $di<$dmt2; $di++)
-            {
-                int $uvIdx = 0;
-                string $uvSetPlug[] = `uvLink -queryObject $sels[$i] -texture $extImage2[$di]`;
-
-                int $fIdx = -1;
-                int $cc = size($uvMaps);
-                int $cci;
-                string $mapName = `getAttr $uvSetPlug[0]`;
-                for($cci=0; $cci<$cc; $cci++)
-                {
-                    if($mapName == $uvMaps[$cci]) $fIdx = $cci;
-                }
-                
-                if($fIdx == -1)
-                {
-                    $fIdx = $cc;
-                    $uvMaps[$cc] = $mapName;
-                }
-
-                string $pathAttr = $extImage2[$di] + ".fileTextureName";
-                string $extImageFilePath = `getAttr $pathAttr`;
-                string $relativePath = getRelativePathToAnotherFile($extImageFilePath, $vizorHtmlPathBaconXJF);
-                $iInfo2[size($iInfo2)] = getNVPrStr("url", $relativePath, ",");
-                
-                if($di<$dmt2-1) $iInfo2[size($iInfo2)] = getNVPrInt("uv_idx", $fIdx, ",");
-                else  $iInfo2[size($iInfo2)] = getNVPrInt("uv_idx", $fIdx, "");
-
-            }
-            if($dmt2 > 0) prtLineBxjf(getLeafObj("normal_map", $iInfo2, ""));
-            $depBxjf--;
-        }
-        
-        string $ender = "";
-        if($i < $mCount-1) $ender = ",";
-        prtLineBxjf(getObjFoot($ender));
-        $i++;
-    }
-    $depBxjf--;
-    prtLineBxjf(getObjFoot(","));
-}
-
-global proc writeVzrShapesBxjf()
-{
-global int $depBxjf;
-global string $sepBxjf;
-global string $vizorHtmlPathBaconXJF;
-global string $bxjfShapes[];
-global string $expFilePathBaconXJF[];
-global string $fPartNoFExt;
-
-    string $mats[];
-    string $umats[];
-    string $shps[];
-    string $cams[];
-    string $lits[];
-    string $sels[] = `ls -l -shapes -v`;
-    int    $slen   = size($sels);
-    float  $minBB[] = {0.0, 0.0, 0.0};
-    float  $maxBB[] = {0.0, 0.0, 0.0};
-    string $uvMaps[];
-    
-    int $shCnt = 0;
-    for ($node in $sels)
-    {
-        select -r $node;
-        Duplicate;
-        Triangulate;
-        DeleteHistory;
-        string $myChildren[] = `pickWalk -d down `;//listRelatives -children`;
-        if(!`attributeExists "bcnco" $myChildren[0]`) addAttr -ln "bcnCloneOf" -sn "bcnco" -dt "string" $myChildren[0];
-        
-        string $endName[];
-        tokenize $node "|" $endName;
-        int $enSize = size($endName);
-        setAttr ($myChildren[0] + ".bcnco") -type "string" $endName[$enSize-1];
-        $shps[$shCnt] = $myChildren[0];
-        $shCnt++;
-    } 
-    
-    prtLineBxjf(getObjHead("meshes"));
-    $depBxjf++;
-    int $count = 0;
-    for($node in $shps)
-    {
-        string $rels[] = `listRelatives -p $shps[$count]`;
-        float  $bbs[] = `xform -q -bb $rels[0]`;
-        
-        if($count == 0)
-        {
-            $minBB[0] = $bbs[0];
-            $minBB[1] = $bbs[1];
-            $minBB[2] = $bbs[2];
-            $maxBB[0] = $bbs[3];
-            $maxBB[1] = $bbs[4];
-            $maxBB[2] = $bbs[5];
-        }
-        else
-        {
-            if($bbs[0] < $minBB[0]) $minBB[0] = $bbs[0];
-            if($bbs[1] < $minBB[1]) $minBB[1] = $bbs[1];
-            if($bbs[2] < $minBB[2]) $minBB[2] = $bbs[2];
-            if($bbs[3] > $maxBB[0]) $maxBB[0] = $bbs[3];
-            if($bbs[4] > $maxBB[1]) $maxBB[1] = $bbs[4];
-            if($bbs[5] > $maxBB[2]) $maxBB[2] = $bbs[5];
-        }
-        
-        string $se[] = `listConnections -type "shadingEngine" $shps[$count]`;
-        $mats = `defaultNavigation -defaultTraversal -destination ($se[0] + ".surfaceShader")`;
-        //string $shapeName = `getAttr ($node + ".bcnco")`;
-        $bxjfShapes[$count] = `getAttr ($node + ".bcnco")`;
-        
-        prtLineBxjf(getObjHead($bxjfShapes[$count]));
-        $depBxjf++;
-        prtLineBxjf(getArrHeadNamed("batches"));
-        $depBxjf++;
-        prtLineBxjf "{";
-        $depBxjf++;
-        prtLineBxjf(getNVPrStr("material",                      $mats[0], ","));  
-        prtLineBxjf(getNVPrStr("vertices", ($bxjfShapes[$count] + "_v0"), ","));
-
-        $uvMaps = `polyUVSet -q -auv $node`;
-
-        int $uvms = size($uvMaps);
-        
-        string $nEnder = "";
-        if($uvms > 0) $nEnder = ",";
-        prtLineBxjf(getNVPrStr("normals", ($bxjfShapes[$count] + "_n0"), $nEnder));
-
-        if($uvms > 0)
-        {
-            int $uvmi;
-            for($uvmi=0; $uvmi<$uvms; $uvmi++)
-            {
-                string $uvEnder = "";
-                if($uvmi < $uvms-1) $uvEnder = ",";
-                prtLineBxjf(getNVPrStr( ("uv" + $uvmi), ($bxjfShapes[$count] + "_t" + $uvmi), $uvEnder ));
-            }
-        }
-        
-/*************************************************************************************
-
-global proc  vector[] bcnGetMeshPointCloud   (string $meshName, int       $asWorld)
-global proc       int bcnGetPointCount       (string $meshName)
-global proc       int bcnGetFaceCount        (string $meshName)
-global proc     int[] bcnGetFaceIndexSet     (string $meshName)
-global proc  string[] bcnGetUVMapNames       (string $meshName)
-global proc       int bcnGetUVMapCount       (string $meshName)
-global proc  vector[] bcnGetUVMapCloud       (string $meshName, string    $mapName)
-global proc       int bcnGetUVCoordCount     (string $meshName, string    $mapName)
-global proc       int bcnGetUVIndex          (string $meshName, int          $face, int $vIdx, string $mapName)
-global proc  vecotr[] bcnGetUVCoordPerVertex (string $meshName, string $uvMaps[]);
-global proc  vector[] bcnGetNormalsPerVertex (string $meshName, int $vertIdxList[])
-global proc  vector[] bcnGetNormalsPerFace   (string $meshName, int     $faceCount)
-*************************************************************************************/        
-
-	    printBxjfStatus("Get Face Count for: " + $node);
-        int         $numOfFaces =        bcnGetFaceCount($node           );
-	    printBxjfStatus("Get Point Count for: " + $node);
-        int        $numOfPoints =       bcnGetPointCount($node           );
-	    printBxjfStatus("Get Mesh Point Cloud: " + $node);
-        vector       $ptCloud[] =   bcnGetMeshPointCloud($node,    true  );
-	    printBxjfStatus("Get Vertex Indecies: " + $node);
-        int            $vIdxs[] =     bcnGetFaceIndexSet($node           );
-	    printBxjfStatus("Sorting Vizor Points: " + $node);
-        float      $ptsSorted[] =      sortVizorPtCloud ($ptCloud, $vIdxs);
-	    printBxjfStatus("Get Normals Per Vertex: " + $node);
-        vector           $npv[] = bcnGetNormalsPerVertex($node,    $vIdxs);
-        int                $nom = size($uvMaps);
-	    printBxjfStatus("Get UV Map Coordinates: " + $node);
-        vector      $uvCoords[] = bcnGetUVCoordPerVertex($node,   $uvMaps, $numOfFaces);
-        
-/*
-        //Get Face Data
-        int       $sInfo[] = `polyEvaluate -face $node`;
-        int           $nof = $sInfo[0];
-        int        $uvSize = size($uvMaps);
-        string $faceStrs[];
-        string    $verts[];
-        string    $norms[];
-        string    $uvcds[];
-        int       $uvSep[];
-        
-        //Get indexes of face vertices
-        int $j;
-        for($j=0; $j<$nof; $j++)
-        {
-            string $tStr[] = `polyInfo -faceToVertex ($node + ".f[" + $j + "]")`;
-            $faceStrs[size($faceStrs)] = $tStr[0];
-        }
-
-        //Get position information of vertices
-        float $pos[3];
-        for($j=0; $j<$nof; $j++)
-        {
-            string $fPrts[];
-            tokenize $faceStrs[$j] $fPrts;
-            
-            int $fPrtsLen = size($fPrts);
-            int $vInFace = $fPrtsLen-2;
-            
-            int $k;
-            for($k=2; $k<$fPrtsLen; $k++)
-            {
-                int $vtxIdx = $fPrts[$k];
-                
-                string $vtxName = ($node + ".vtx[" + $vtxIdx + "]");
-                $pos = `pointPosition -world $vtxName`;
-                int $l;
-                for($l=0; $l<3; $l++) $verts[size($verts)] = bcnForceFloat($pos[$l]);
-                
-                //Calculate the appropriate face normal for this vertecx
-                select -r $vtxName;
-                string  $pi[] = `polyInfo -vertexToFace`;
-                string $pip[];
-                tokenize $pi[0] $pip;
-                int $pips = size($pip);
-                
-                int $m;
-                int $faceID;
-                vector $vNorm = 0;
-                vector $fNorm;
-                
-                string $pi2[];
-                string $pip2[];
-                for($m=2; $m<$pips; $m++)
-                {
-                    $faceID = $pip[$m];
-                       $pi2 = `polyInfo -faceNormals ($node + ".f[" + $faceID + "]")`;
-                       tokenize $pi2[0] $pip2;
-                       $fNorm = << float($pip2[2]), float($pip2[3]), float($pip2[4]) >>;
-                       $vNorm += $fNorm;
-                }
-                $vNorm = `unit $vNorm`;
-                $norms[size($norms)] = bcnForceFloat($vNorm.x);
-                $norms[size($norms)] = bcnForceFloat($vNorm.y);
-                $norms[size($norms)] = bcnForceFloat($vNorm.z);
-            }
-        }
-        
-        float $tMap[];
-        int $n;
-        for($n=0; $n<$uvSize; $n++)
-        {
-            $uvSep[$n] = 0;
-            select -r $node;
-            polyUVSet -cuv -uvSet $uvMaps[$n];
-            print ("UVMap: " + $uvMaps[$n] + "\n");
-
-            for($j=0; $j<$nof; $j++)
-            {
-                string $vfData[] = `polyListComponentConversion -ff -tvf ($node + ".f[" + $j + "]")`;
-                $vfData = `ls -flatten $vfData`;
-                int $uvi;
-                int $uvDS = size($vfData);
-                for($uvi=0; $uvi<$uvDS; $uvi++)
-                {
-                    string $uvValue[] = `polyListComponentConversion -fvf -tuv $vfData[$uvi]`;
-                    int $o;
-                    int $p = size($uvValue);
-                    for($o=0; $o<$p; $o++)
-                    {
-                        select -r $uvValue[$o];
-                        float $uv[] = `polyEditUV -q -u -v`;
-                        $uvcds[size($uvcds)] = $uv[0];
-                        $uvSep[$n] = $uvSep[$n] + 1;
-                        $uvcds[size($uvcds)] = $uv[1];
-                        $uvSep[$n] = $uvSep[$n] + 1;
-                    }
-                }
-            }
-        }
-*/        
-        string $shpFN = $fPartNoFExt + "_" + $bxjfShapes[$count] + ".bcnbtz";
-        string $mFilePath = $expFilePathBaconXJF[1] + $sepBxjf + $shpFN;
-        
-        prtVizorMeshBxjf($mFilePath, $bxjfShapes[$count], $ptsSorted, $npv, $uvCoords, $nom, $count);
-
-        select -r $node;
-        string $parent[] = `pickWalk -d up`;
-        
-        delete $parent[0];
-        $depBxjf--;
-        prtLineBxjf "}";
-        $depBxjf--;
-        prtLineBxjf(getArrFoot(""));
-        $depBxjf--;
-        if($count < $slen-1) prtLineBxjf "},";
-        else                 prtLineBxjf "}";
-        $count++;
-    }
-    $depBxjf--;
-    prtLineBxjf "},";
-    
-    prtLineBxjf "\"bounding_box\": ";
-    prtLineBxjf "{";
-    $depBxjf++;
-    prtLineBxjf ("\"lo\": [" + $minBB[0] + ", " + $minBB[1] + ", " + $minBB[2] + "],");
-    prtLineBxjf ("\"hi\": [" + $maxBB[0] + ", " + $maxBB[1] + ", " + $maxBB[2] + "],");
-    $depBxjf--;
-    prtLineBxjf "}";
-}
-/***********************************************************/
-//////////// Vizor VR Exporter End //////////////////////////
-
-
-
-/////////////////////////////////////////////////////////////
-/***********************************************************
-X3D Format Exporter
-************************************************************/
-
-global proc string expAnalyzeForX3DLeafBaconXJF(string $gBxjf)
-{
-    string $myChildren[] = `listRelatives -children $gBxjf`;
-    int $cSize = size($myChildren);
-    
-    if($cSize > 0)
-    {
-        string $typeName = `nodeType $myChildren[0]`;
-        switch($typeName)
-        {
-            case "directionalLight":
-                return "DirectionalLight";
-                break;
-            case "spotLight":
-                return "SpotLight";
-                break;
-            case "ambientLight": // Is an ambient light, but I haven't figured out yet how to represent it in X3D
-                return "PointLight";
-                break;
-            case "pointLight":
-                return "PointLight";
-                break;
-            case "camera":
-                return "Camera";
-                break;
-            default:
-                break;
-        }
-    }
-    
-    string $nType = `nodeType $gBxjf`;
-    switch($nType)
-    {
-        case "transform":
-            $nType = "Transform";
-            break;
-//      case "joint":
-//          $nType = "";
-//          break;
-        case "mesh":
-            return "Shape";
-            break;
-        default:
-            $nType = "none";
-            break;
-    }
-    
-    return $nType;
-}
-
-global proc writeX3DDirectionalLight(string $gBxjf, string $cField)
-{
-global string $bcnFormat[];
-global int $expFormatBaconXJF;
-global int $depBxjf;
-    int $beenUsed = false;
-    string $attribute = $gBxjf + ".x3d";
-    if(`attributeExists x3d $gBxjf`) $beenUsed = `getAttr $attribute`;
-    else
-    {
-        select -ne $gBxjf;
-        addAttr -shortName x3d -longName x3dExported -at bool;
-        $beenUsed = true;
-        setAttr $gBxjf.x3d -type bool $beenUsed;
-    }
-    
-    string $dlprint = "";
-    if($beenUsed == true)
-    {
-        switch($bcnFormat[$expFormatBaconXJF])
-        {
-            case "x3dcFileFormat":
-                if($cField != "") $dlprint = $cField + " " + "USE " + `getAttr $gBxjf.name`;
-                else $dlprint = "USE " + `getAttr $gBxjf.name`;
-                prtLineBxjf $dlprint;
-                break;
-            case "x3djFileFormat":
-                if($cField != "")
-                {
-                    $dlprint = "\"-" + $cField + "\":";
-                    prtLineBxjf $dlprint;
-                    prtLineBxjf "[";
-                    $depBxjf++;
-                }            
-                prtLineBxjf "{";
-                $depBxjf++;
-                prtLineBxjf "\"DirectionalLight\":";
-                prtLineBxjf "{";
-                $depBxjf++;
-                string $uString = "\"@USE\":" + "\"" + `getAttr $gBxjf.name` + "\"";
-                prtLineBxjf $uString;
-                $depBxjf--;
-                prtLineBxjf "}";
-                $depBxjf--;
-                prtLineBxjf "}";
-                if($cField != "")
-                {
-                    $depBxjf--;
-                    prtLineBxjf "]";
-                }
-                break;
-            case "x3dxFileFormat":
-                string $xmlText = "<DirectionalLight USE=\"" + `getAttr $gBxjf.name` + "\"";
-                if($cField != "") $xmlText = $xmlText + " containerField=\"" + $cField + "\"";
-                $xmlText = $xmlText + "/>";
-                prtLineBxjf $xmlText;
-                break;
-            case "x3dhFileFormat":
-                string $xmlText = "<DirectionalLight USE=\"" + `getAttr $gBxjf.name` + "\"";
-                if($cField != "") $xmlText = $xmlText + " containerField=\"" + $cField + "\"";
-                $xmlText = $xmlText + "/>";
-                prtLineBxjf $xmlText;
-                break;            
-                 
-            default:
-                break;
-        }
-    }
-    else
-    {
-    
-        string        $pc[] = `listRelatives -children $gBxjf`;
-        string        $catt = $pc[0] + ".color";
-         float   $dlColor[] = `getAttr $catt`;
-     
-        string        $iatt = $pc[0] + ".intensity";
-         float    $dlIntens = `getAttr $iatt`;
-         if($dlIntens > 1.0) $dlIntens = 1.0;
-     
-         float  $dlMatrix[] = `xform -q -os -matrix $gBxjf`;
-         float $direction[] = {-$dlMatrix[8], -$dlMatrix[9], -$dlMatrix[10]};
-
-         string $x3d_intensity = "";
-         if($dlIntens != 0.0 ) $x3d_intensity = "intensity " +  $dlIntens;
-
-         string $x3d_color     = "";
-         if($dlColor[0] != 0.0 && $dlColor[1] != 0.0 && $dlColor[2] != 0) $x3d_color = "color " +  $dlColor[0] + " " +  $dlColor[1] + " " +  $dlColor[2];
-     
-         string $x3d_direction = "";      
-         if($direction[0] != 0.0 && $direction[1] != 0.0 && $direction[2] != 0) $x3d_direction = "direction " +  $direction[0] + " " +  $direction[1] + " " +  $direction[2];
-     
-        switch($bcnFormat[$expFormatBaconXJF])
-        {
-            case "x3dcFileFormat":
-                string $clString = "";
-                if($cField != "") $clString = $cField + " DEF " + $gBxjf + " DirectionalLight";
-                else $clString = "DEF " + $gBxjf + " DirectionalLight";
-                if($x3d_intensity != "" || $x3d_color != "" || $x3d_direction != "")
-                {
-                    prtLineBxjf $clString;
-                    prtLineBxjf "{";
-                    $depBxjf++;
-                    if($x3d_intensity != "") prtLineBxjf $x3d_intensity;
-                    if($x3d_color     != "") prtLineBxjf $x3d_color;
-                    if($x3d_direction != "") prtLineBxjf $x3d_direction;
-                    $depBxjf--;
-                    prtLineBxjf "}";
-                }
-                else
-                {
-                    $clString = $clString + "{}";
-                    prtLineBxjf $clString;
-                }
-                break;
-            case "x3djFileFormat":
-                break;
-            case "x3dxFileFormat":
-                break;
-            case "x3dhFileFormat":
-                break;
-            default:
-                break;
-        }
-    }
-}
-         
-global proc writeX3DSpotLight(string $gBxjf, string $cf)
-{
-global int $depBxjf;
-
-}
-
-global proc writeX3DPointLight(string $gBxjf, string $cf)
-{
-global int $depBxjf;
-
-}
-
-global proc writeX3DShapeBranch(string $gBxjf, string $cf)
-{
-global int $depBxjf;
-
-}
-
-global proc writeX3DTransformBranch(string $gBxjf, string $cf)
-{
-global int $depBxjf;
-global string $expListBxjf[];
-    $depBxjf++;
-    if(!`attributeExists "bcnco" $gBxjf`)
-    {
-        addAttr -ln "bcnCloneOf" -sn "bcnco" -dt "string" $gBxjf;
-        setAttr ($gBxjf + ".bcnco") -type "string" $gBxjf;
-        $expListBxjf[size($expListBxjf)] = $gBxjf;
-        
-        string $nf[];
-        $nf[size($nf)] = getXmlStrField("DEF", $gBxjf);
-        if($cf != "") $nf[size($nf)] = getXmlStrField("containerField", $cf);
-        
-        prtLineBxjf(getXmlStartTag("Transform", $nf, false));
-        prtLineBxjf(getXmlEndTag("Transform", ""));
-    }
-    else
-    {
-        string $nf[];
-        $nf[size($nf)] = getXmlStrField("USE", $gBxjf);
-        if($cf != "") $nf[size($nf)] = getXmlStrField("containerField", $cf);
-        
-        prtLineBxjf(getXmlStartTag("Transform", $nf, true));
-    }
-
-}
-
-global proc writeX3DLODBranch(string $gBxjf, string $cf)
-{
-global int $depBxjf;
-
-}
-
-global proc writeX3dxMaterialsBxjf()
-{
-global int $depBxjf;
-
-}
-
-global proc traverseSGx3dBaconXJF(string $gBxjf, string $branchNameBxjf, int $identity)
-{
-global int $isMayaLtBxjf;
-//global int $depBxjf;
-//    $depBxjf++;
-    int $expIdx  = -1;
-    int $ebSize  =  0;
-    int $iExpIdx =  0;
-    string $myChildren[] = `listRelatives -children $gBxjf`;
-    
-    string $nodeType = expAnalyzeForX3DLeafBaconXJF($gBxjf);
-    print $nodeType;
-    switch($nodeType)
-    {
-        //Is Transform with Light Leaf
-        case "DirectionalLight":
-            writeX3DDirectionalLight($gBxjf, "");
-            break;
-                    
-        case "SpotLight":
-            writeX3DSpotLight($gBxjf, "");
-            break;
-
-        case "PointLight":
-            writeX3DPointLight($gBxjf, "");
-            break;
-                
-//                case "AmbientLight":
-//                    $sgUUID = getUUIDBaconXJF($gBxjf);
-//                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
-//                    prtLineBxjf $tempLine;
-//                    break;
-
-        case "Shape":
-            writeX3DShapeBranch($gBxjf, "");
-            break;
-
-        //Default is Standard Transform Node
-        case "Transform":
-            writeX3DTransformBranch($gBxjf, "");
-            break;
-
-        case "LOD":
-            writeX3DLODBranch($gBxjf, "");
-            break;
-//        case "joint":
-//            string $pjoint = $nodeTypeBxjf + ":" + $gBxjf + ":" + genUUIDBaconXJF();
-//            prtLineBxjf $pjoint;
-//            for($aChild in $myChildren) traverseSGthreejsBaconXJF($aChild, "", 0);
-//            break;
-
-        default:
-//            string $pdefault = $nodeTypeBxjf + ":" + $gBxjf + ":" + genUUIDBaconXJF();
-//            prtLineBxjf $pdefault;
-            break;
-    }
-    
-    
-}
-
-/**********************************************************/
-/////// X3D EXPORTER End ///////////////////////////////////
-////////////////////////////////////////////////////////////
-
-
-
-////////////////////////////////////////////////////////////
-/***********************************************************
-ThreeJS Format Exporter
-***********************************************************/
-global proc string expAnalyzeForThreeJSLeafBaconXJF(string $gBxjf)
-{
-    string $myChildren[] = `listRelatives -children $gBxjf`;
-    if(size($myChildren) == 0) return "Object3D";
-    
-    string $typeName = `nodeType $myChildren[0]`;
-    switch($typeName)
-    {
-        case "directionalLight":
-            return "DirectionalLight";
-            break;
-        case "spotLight":
-            return "SpotLight";
-            break;
-        case "ambientLight":
-            return "AmbientLight";
-            break;
-        case "pointLight":
-            return "PointLight";
-            break;
-        case "camera":
-            return "Camera";
-            break;
-        case "mesh":
-            return "Mesh";
-            break;
-    }
-}
-
-global proc string getHexBaconXJF(int $num)
-{
-    string $strVal = "";
-    switch($num)
-    {
-        case 10:
-            $strVal = $strVal + "a";
-            break;
-        case 11:
-            $strVal = $strVal + "b";
-            break;
-        case 12:
-            $strVal = $strVal + "c";
-            break;
-        case 13:
-            $strVal = $strVal + "d";
-            break;
-        case 14:
-            $strVal = $strVal + "e";
-            break;
-        case 15:
-            $strVal = $strVal + "f";
-            break;
-        default:
-            $strVal = $strVal + $num;
-            break;
-    }
-    return $strVal;
-}
-
-global proc string genUUIDPartBaconXJF(float $cTime, string $c)
-{
-    int $r = ($cTime + (`rand 1` * 16)) % 16;
-
-    string $strVal = "";
-    if($c=="x") $strVal = getHexBaconXJF($r);
-    else
-    {
-        if($r>7) $r = $r-8;
-        $r = $r + 8;
-        $strVal = getHexBaconXJF($r);
-    }
-    return $strVal;
-}
-
-global proc string genUUIDBaconXJF()
-{
-    float $cTime = `currentTime -query`;
-    string $uuid = "";
-    string $rText = "";
-    for($i=0; $i<6; $i++)
-    {
-        $rText = genUUIDPartBaconXJF($cTime, "x");
-        $uuid = $uuid + $rText;
-        $cTime = $cTime / 16;
-    }
-    $uuid = $uuid + "-";
-    for($i=0; $i<4; $i++)
-    {
-        $rText = genUUIDPartBaconXJF($cTime, "x");
-        $uuid = $uuid + $rText;
-        $cTime = $cTime / 16;
-    }
-    $uuid = $uuid + "-4";
-    for($i=0; $i<3; $i++)
-    {
-        $rText = genUUIDPartBaconXJF($cTime, "x");
-        $uuid = $uuid + $rText;
-        $cTime = $cTime / 16;
-    }
-    $uuid = $uuid + "-";
-    $rText = genUUIDPartBaconXJF($cTime, "y");
-    $uuid = $uuid + $rText;
-    $cTime = $cTime / 16;
-    for($i=0; $i<3; $i++)
-    {
-        $rText = genUUIDPartBaconXJF($cTime, "x");
-        $uuid = $uuid + $rText;
-        $cTime = $cTime / 16;
-    }
-    $uuid = $uuid + "-";
-    for($i=0; $i<12; $i++)
-    {
-        $rText = genUUIDPartBaconXJF($cTime, "x");
-        $uuid = $uuid + $rText;
-        $cTime = $cTime / 16;
-    }
-    
-    return $uuid;
-}
-
-global proc string getUUIDBaconXJF(string $gBxjf)
-{
-global string $expBxjfMName[];
-global string $expBxjfID[];
-
-    int $expIdx = -1;
-    int $ebSize = size($expBxjfMName);
-    int $iExpIdx = 0;
-    while($expIdx < 0 && $iExpIdx < $ebSize)
-    {
-        if($gBxjf == $expBxjfMName[$iExpIdx]) $expIdx = $iExpIdx;
-        $iExpIdx++;
-    }
-    string $lUUID = "";
-    if($expIdx == -1)
-    {
-        $expIdx = $ebSize;
-        $lUUID = genUUIDBaconXJF();
-        $expBxjfID[$expIdx] = $lUUID;
-        $expBxjfMName[$expIdx] = $gBxjf;
-    }
-    else $lUUID = $expBxjfID[$expIdx];
-    return $lUUID;
-}
-
-global proc waosBxjf()
-{
-global int $depBxjf;
-    prtLineBxjf "{";
-    $depBxjf++;    
-}
-
-global proc wacsBxjf()
-{
-global int $depBxjf;
-    prtLineBxjf "}";
-    $depBxjf--;        
-}
-
-global proc wacswcBxjf()
-{
-global int $depBxjf;
-    prtLineBxjf "},";
-    $depBxjf--;
-}
-
-global proc writeThreejsMesh(string $gBxjf, string $myChildren[], int $prtComma)
-{
-global int $depBxjf;
-    //ToDo - Write out transform attributes
-    string $sgUUID = getUUIDBaconXJF($gBxjf);
-                    
-    waosBxjf();                    
-    string $ptrans = "\"uuid\": \"" + $sgUUID + "\",";
-    prtLineBxjf $ptrans;
-                    
-    $ptrans = "\"type\": \"Mesh\",";
-    prtLineBxjf $ptrans;
-                    
-    $ptrans = "\"name\": \"" + $gBxjf + "\"";
-                    
-    if(size($myChildren) > 1)
-    {
-        $ptrans = $ptrans + ",";
-        prtLineBxjf $ptrans;
-        $ptrans = "\"children\":";
-        prtLineBxjf $ptrans;
-                    
-        prtLineBxjf "[";
-               
-        //Traverse Children
-        for($idx=1; $idx<size($myChildren); $idx++)
-        {
-            int $hmc = 0;
-            int $myCheck = size($myChildren);
-            $myCheck = $myCheck-1;
-            if($idx < $myCheck) $hmc = 1;
-            int $idt = 0;
-            traverseSGthreejsBaconXJF($myChildren[$idx], $hmc);   
-        }
-                        
-        prtLineBxjf "]";
-    }
-    else prtLineBxjf $ptrans;
-                    
-    $depBxjf--;
-    if($prtComma == 1) wacswcBxjf();
-    else wacsBxjf();
-}
-
-
-//ThreeJS
-global proc traverseSGthreejsBaconXJF(string $gBxjf, int $prtComma)
-{
-global int $isMayaLtBxjf;
-global int $depBxjf;
-    $depBxjf++;
-    int $expIdx  = -1;
-    int $ebSize  =  0;
-    int $iExpIdx =  0;
-    string $myChildren[] = `listRelatives -children $gBxjf`;
-    string $nodeTypeBxjf = `nodeType $gBxjf`;
-    
-    string $sgUUID = "";
-    switch($nodeTypeBxjf)
-    {
-        case "lodGroup":
-            break;
-        case "transform":
-            string $leafTypeBxjf = expAnalyzeForThreeJSLeafBaconXJF($gBxjf);
-            
-            switch($leafTypeBxjf)
-            {
-                //Is Transform with Light Leaf
-                case "DirectionalLight":
-                    $sgUUID = getUUIDBaconXJF($gBxjf);
-                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
-                    prtLineBxjf $tempLine;
-                    break;
-                    
-                case "SpotLight":
-                    $sgUUID = getUUIDBaconXJF($gBxjf);
-                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
-                    prtLineBxjf $tempLine;
-                    break;
-
-                case "PointLight":
-                    $sgUUID = getUUIDBaconXJF($gBxjf);
-                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
-                    prtLineBxjf $tempLine;
-                    break;
-                
-                case "AmbientLight":
-                    $sgUUID = getUUIDBaconXJF($gBxjf);
-                    $tempLine = "\"uuid\": \"" + $sgUUID + "\"";
-                    prtLineBxjf $tempLine;
-                    break;
-//                case "Mesh":
-//                    writeThreejsMeshBaconXTF($gBxtf, $myChildren, $prtComma);
-//                    break;
-                                        
-                case "Mesh":
-                    writeThreejsMesh($gBxjf, $myChildren, $prtComma);
-                    break;
-
-                //Default is Standard Transform Node
-                case "Object3D":
-                    //ToDo - Write out transform attributes
-                    $sgUUID = getUUIDBaconXJF($gBxjf);
-                    string $ptrans = $leafTypeBxjf + ":" + $gBxjf + ": \"" + $sgUUID + "\"";
-                    prtLineBxjf $ptrans;
-                    //Traverse Children
-                    for($aIdx=1; $aIdx<size($myChildren); $aIdx++)
-                    {
-                        int $hmc = 0;
-                        int $myCheck = size($myChildren);
-                        $myCheck = $myCheck-1;
-                        if($aIdx < $myCheck) $hmc = 1;
-                        int $idt = 0;
-                        traverseSGthreejsBaconXJF($myChildren[$aIdx], $hmc);   
-                    }
-                    break;
-            }
-            break;
-//        case "joint":
-//            string $pjoint = $nodeTypeBxjf + ":" + $gBxjf + ":" + genUUIDBaconXJF();
-//            prtLineBxjf $pjoint;
-//            for($aChild in $myChildren) traverseSGthreejsBaconXJF($aChild, "", 0);
-            break;
-        default:
-//            string $pdefault = $nodeTypeBxjf + ":" + $gBxjf + ":" + genUUIDBaconXJF();
-//            prtLineBxjf $pdefault;
-            break;
-    }
-}
-
-/********************************************************************/
-///////// ThreeJS Exporter End ///////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////
-/*********************************************************************
-glTF exporter
-*********************************************************************/
-//glTF
-global proc traverseSGgltfBaconXJF(string $gBxjf, string $branchNameBxjf, int $identity)
-{
-global int $depBxjf;
-    $depBxjf++;    
-    
-}
-/********************************************************************/
-//////////// glTF Exporter End ///////////////////////////////////////
-
 global proc prtLineBxjf(string $bftxLine)
 {
 global int $expFileIdBaconXJF;
@@ -1954,6 +452,7 @@ global string $bcnFormat[];
         case "bcnFileFormat":
             break;
         case "vzrFileFormat":
+        	setUpAxis "z";
             $bxjfType = "Vizor";
             prtLineBxjf "processVizorScene({";
             break;
@@ -1965,7 +464,7 @@ global string $bcnFormat[];
             $bxjfType = "Threejs";
             prtLineBxjf "{";
             break;
-        case "x3dcFileFormat":
+        case "x3dvFileFormat":
             $bxjfType = "X3DC";
             prtLineBxjf "#X3D V3.0 utf8";
             prtLineBxjf "PROFILE Interchange";
@@ -2059,7 +558,7 @@ global string $bcnFormat[];
         case "vzrFileFormat":
             int $len = size($fPartsBxjf);
             $depBxjf++;
-            string $metaData = "\"id\": \"" + $fPartNoFExt + "_json\",";
+            string $metaData = "\"id\": \"" +  $fPartNoFExt  + "_json\",";
             prtLineBxjf $metaData;
             break;
         case "gltfFileFormat":
@@ -2100,7 +599,7 @@ global string $bcnFormat[];
             prtLineBxjf "},";
             $depBxjf--;
             break;
-        case "x3dcFileFormat":
+        case "x3dvFileFormat":
             string $metaInfo =  "META \"filename\" \"" + $expFilePathBaconXJF[2] + "\"";
             prtLineBxjf $metaInfo;
             break;
@@ -2319,7 +818,7 @@ global string $bcnFormat[];
             prtLineBxjf "}";
             $depBxjf--;
             break;
-        case "x3dcFileFormat":
+        case "x3dvFileFormat":
             for($i=0;$i<$size;$i++)
             {
                 print "It was called.";
@@ -2379,7 +878,7 @@ global string $bcnFormat[];
         case "tjsFileFormat":
             prtLineBxjf "}";
             break;
-        case "x3dcFileFormat":
+        case "x3dvFileFormat":
             break;
         case "x3djFileFormat":
             $depBxjf--;
@@ -2421,6 +920,7 @@ global string $vizorHtmlPathBaconXJF;
 global string $sepBxjf;
 global string $bcnFormat[];
 global string $expListBxjf[];
+global string $bxjfUpAxis;
 
     int $selItems[] = `textScrollList -query -sii "bftxTSL"`;
     
@@ -2440,7 +940,7 @@ global string $expListBxjf[];
         case "tjsFileFormat":
             $expFilePathBaconXJF = `fileDialog2 -fm 0 -cap "Export ThreeJS" -ff "ThreeJS (*.json)" -okc "Save" -cc "Cancel"`;
             break;
-        case "x3dcFileFormat":
+        case "x3dvFileFormat":
             $expFilePathBaconXJF = `fileDialog2 -fm 0 -cap "Export X3D Classic" -ff "X3D Classic (*.x3dv)" -okc "Save" -cc "Cancel"`;
             break;
         case "x3djFileFormat":
@@ -2451,6 +951,9 @@ global string $expListBxjf[];
             break;
         case "x3dhFileFormat":
             $expFilePathBaconXJF = `fileDialog2 -fm 0 -cap "Export XHTML" -ff "XHMTL (*.html)" -okc "Save" -cc "Cancel"`;
+            break;
+        case "bjsFileFormat":
+            $expFilePathBaconXJF = `fileDialog2 -fm 0 -cap "Export BabylonJS" -ff "BabylonJS (*.json)" -okc "Save" -cc "Cancel"`;
             break;
         default:
             $expFilePathBaconXJF = `fileDialog2 -fm 0 -cap "Export Failure" -ff "Failure (*.fail)" -okc "Save" -cc "Cancel"`;
@@ -2485,29 +988,35 @@ global string $expListBxjf[];
         clear $expBxjfMName;
         clear $expBxjfID;
 
+		string $topTrans[];
+		        
+        if(`radioButtonGrp -query -select "itemsBxjf"` == 2) $topTrans = `ls -selection`;
+        else $topTrans = `ls -as`;
         
-        if(`radioButtonGrp -query -select "itemsBxjf"` == 2) $sgGroups = `ls -selection`;
+        for($t in $topTrans)
+        {
+        	if($t != "persp" && $t != "top" && $t != "side" && $t != "front")
+            {
+            	if(`getAttr($t + ".visibility")`) $sgGroups[size($sgGroups)] = $t;
+            }
+        }
+        
+        string $ff = $bcnFormat[$expFormatBaconXJF];
+        if($ff == "x3dvFileFormat" || $ff == "x3dxFileFormat" || $ff == "x3djFileFormat" || $ff == "x3dhFileFormat") processX3DBaconXJF($ff);
         else
         {
-            string $allTransforms[] = `ls -tr`;
-            int $tSize = size($allTransforms);
-            for($i=0; $i<$tSize; $i++)
-            {
-                string $rels[] = `listRelatives -ap $allTransforms[$i]`;
-                if(size($rels) == 0 && `getAttr ( $allTransforms[$i] + ".visibility" )`) $sgGroups[size($sgGroups)] = $allTransforms[$i];
-            }   
-        }
-        writeFileHeaderBaconXJF();
-        writeMetadataBaconXJF();
-        writeMaterialsBaconXJF();
-        writeTexturesBaconXJF();
-        writeSceneGraphBaconXJF();
-        writeFileFooterBaconXJF();
+        	writeFileHeaderBaconXJF();
+        	writeMetadataBaconXJF();
+        	writeMaterialsBaconXJF();
+        	writeTexturesBaconXJF();
+        	writeSceneGraphBaconXJF();
+        	writeFileFooterBaconXJF();
 
-        if($expFormatBaconXJF == 1) prtVizorHTMLBxjf();        
+        	if($expFormatBaconXJF == 1) prtVizorHTMLBxjf();        
         
-        if($isMayaLtBxjf == false) fclose $expFileIdBaconXJF;
-        else fwriteAllLines $expFilePathBaconXJF[0] $expStrBaconXJF;
+        	if($isMayaLtBxjf == false) fclose $expFileIdBaconXJF;
+        	else fwriteAllLines $expFilePathBaconXJF[0] $expStrBaconXJF;
+        }
     }
     deleteBaconXJFEx;
     string $outputBxjf = "File Exported: " + $expFilePathBaconXJF[0];// + "\n";
@@ -2531,6 +1040,8 @@ global string $expListBxjf[];
     
     string $newList[];
     $expListBxjf = $newList;
+    
+    setUpAxis $bxjfUpAxis;
 }
 
 global proc showBaconXJFEx()
@@ -2544,7 +1055,7 @@ global string $txtLineLimitBxjf;
 global string $sepBxjf;
 global string $bcnFormat[];
 
-    $bcnFormat = {"bcnFileFormat","vzrFileFormat","x3dcFileFormat","x3djFileFormat","x3dxFileFormat","x3dhFileFormat","tjsFileFormat","gltfFileFormat"};
+    $bcnFormat = {"bcnFileFormat","vzrFileFormat","x3dvFileFormat","x3djFileFormat","x3dxFileFormat","x3dhFileFormat","tjsFileFormat","gltfFileFormat","bjsFileFormat"};
     
 	string $testLines[];
     string $bPath = `optionVar -q "pathToBaconXJF"`;
@@ -2588,14 +1099,15 @@ global string $bcnFormat[];
                 textScrollList -numberOfRows 8
                                -allowMultiSelection false
                                -append "Bacon Wrap"    //BaconXJF Format
-                               -append "Vizor VR"      //Vizor VR
+                               -append "Vizor VR { JSON }"      //Vizor VR
                                -append "X3D {classic}" //X3D {classic}
                                -append "X3D { JSON  }" //X3D { JSON  }
                                -append "X3D <  xml  >" //X3D <  xml  >
                                -append "XHTML <3D html>" //XHTML
                                -append "ThreeJS { JSON }" //ThreeJS"
                                -append "glTF { JSON }" //glTF
-                               -selectItem "Vizor VR" "bftxTSL";
+                               -append "BabylonJS { JSON }"
+                               -selectItem "Vizor VR { JSON }" "bftxTSL";
 
                 if($hasShdrFxBxjf)
                 {
@@ -2645,8 +1157,16 @@ global string $bcnFormat[];
 
 global proc bacon_xjf_export()
 {
+global string $bxjfUpAxis;
+
+	$bxjfUpAxis = `upAxis -q -axis`;
 	bacon_xjf_json;
+	bacon_xjf_vizor;
+	bacon_xjf_threejs;
+	bacon_xjf_gltf;
+	bacon_xjf_babylonjs;
 	bacon_xjf_xml;
+	bacon_xjf_x3d;
 	showBaconXJFEx;
 }
 

@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 BaconXJF JSON Functions
+bacon_xjf_json.mel
 Author: Aaron Bergstrom 
 E-mail: flickertail@gmail.com
 */
@@ -223,7 +224,7 @@ global proc string getNVPrObjArr(string $bcnName, string $bcnString[], string $b
 
 global proc bacon_xjf_json()
 {
-	print "Sourcing bacon_xjf_json.mel";
+	print "Sourcing bacon_xjf_json.mel\n";
 }
 
 //global proc string getNamedValuePair(string $bcnName, string $bcnObjName)

@@ -1,0 +1,496 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2015 Aaron Bergstrom
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+BaconXJF Vizor Functions
+bacon_xjf_vizor.mel
+Author: Aaron Bergstrom 
+E-mail: flickertail@gmail.com
+*/
+
+global    int $depBxjf;
+global string $sepBxjf;
+global string $fPartNoFExt;
+global    int $isMayaLtBxjf;
+global string $bxjfShapes[];
+global string $vizorHtmlPathBaconXJF;
+global string $expFilePathBaconXJF[];
+
+
+/************************************************************
+Vizor VR Exporter 
+************************************************************/
+global proc prtVizorMeshBxjf(string $fPath, string $meshName, vector $verts[], vector $norms[], vector $uvs[], int $numOfMaps, int $sIdx)
+{
+global int $isMayaLtBxjf;
+    string $bigString = "";
+    printBxjfStatus("Extracting mesh data for " + $meshName);
+    $bigString = $bigString + "loadVizorMeshFile({\n";
+    $bigString = $bigString + "\t\"idx\":" + $sIdx + ",\n";
+    $bigString = $bigString + "\t\"meshname\":\"" + $meshName + "\",\n";
+    $bigString = $bigString + "\t\"vertices\":[";
+    
+    int $uLen = size($uvs);
+    int $uBase = $uLen - $numOfMaps;
+    
+    int $i;
+    int $j;
+    int $s = size($verts);
+    for($i=0; $i<$s; $i++)
+    {
+        vector $vec = $verts[$i];
+        $bigString = $bigString + bcnForceFloat($vec.x) + "," + bcnForceFloat($vec.y) + "," + bcnForceFloat($vec.z);
+//        $bigString = $bigString + $verts[$i];
+        if($i<$s-1) $bigString = $bigString + ",";
+    }
+    $bigString = $bigString + "],\n";
+
+    $bigString = $bigString + "\t\"normals\":[";
+    $s = size($norms);
+    for($i=0; $i<$s; $i++)
+    {
+        vector $vec = $norms[$i];
+        $bigString = $bigString + bcnForceFloat($vec.x) + "," + bcnForceFloat($vec.y) + "," + bcnForceFloat($vec.z);
+
+//        $bigString = $bigString + $norms[$i];
+        if($i<$s-1) $bigString = $bigString + ",";
+    }
+    if($numOfMaps > 0 )
+    {
+        $bigString = $bigString + "],\n";
+        $bigString = $bigString + "\t\"uvMaps\":\n";
+        $bigString = $bigString + "\t[\n";
+        
+        int $offset = 0;
+        for($j=0; $j<$numOfMaps; $j++)
+        {
+        	$bigString = $bigString + "\t\t{\n";
+            $bigString = $bigString + "\t\t\t\"uvcoords\":[";
+            
+            vector $bVec = $uvs[$uBase+$j];
+            int $epm = int($bVec.x);
+            
+            int $t;
+            for($t=0; $t<$epm; $t++)
+            {
+                vector $tVec = $uvs[$offset+$t];
+                $bigString = $bigString + bcnForceFloat($tVec.x) + "," + bcnForceFloat($tVec.y);
+                if($t < $epm-1) $bigString = $bigString + ",";
+            }
+            $offSet = $offset + $epm;
+            
+            $bigString = $bigString + "]\n";
+        	$bigString = $bigString + "\t\t}";
+        	
+            if($j<$numOfMaps-1) $bigString = $bigString + ",\n";
+            else                $bigString = $bigString + "\n";
+        }
+        
+	    $bigString = $bigString + "\t]\n";
+    }
+    else            $bigString = $bigString + "]\n";
+
+    $bigString = $bigString + "});";
+
+    if($isMayaLtBxjf == false)
+    {
+        int $fID= `fopen $fPath`;
+        fprint $fID $bigString;
+        fclose $fID;
+    }
+    else fwriteAllText $fPath $bigString;
+}
+
+global proc prtVizorHTMLBxjf()
+{
+global string $vizorHtmlPathBaconXJF;
+global string $fPartNoFExt;
+global    int $isMayaLtBxjf;
+global string $sepBxjf;
+global string $bxjfShapes[];
+	printBxjfStatus("Writing out Vizor HTML file.");
+
+    string $relScript = getRelativePathToBaconXJF($vizorHtmlPathBaconXJF);
+	string $vspScript = $relScript + "js/vizorSceneProcessor.js";
+
+    string $tLine = "<html>\n\t<head>\n";
+           $tLine = $tLine + "\t\t<title>BaconXJF 3D Web Formats Exporter - Vizor.io Format</title>\n";
+           $tLine = $tLine + "\t\t<script>\n";
+           $tLine = $tLine + "\t\t\tvar mdLen = " + size($bxjfShapes) + ";\n";
+           $tLine = $tLine + "\t\t\tvar mdLenFnd = 0;\n";
+           $tLine = $tLine + "\t\t\tvar meshData = new Array(mdLen);\n";
+           $tLine = $tLine + "\t\t</script>\n";
+           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/jszip/dist/jszip.js\" type=\"text/javascript\"></script>\n";
+           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/jszip/vendor/FileSaver.js\" type=\"text/javascript\"></script>\n";
+           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/node-jspack/jspack.js\" type=\"text/javascript\"></script>\n";
+           $tLine = $tLine + "\t\t<script src=\"" + $relScript + "js/bcnBtzImgGen.js\" type=\"text/javascript\"></script>\n";
+           $tLine = $tLine + "\t</head>\n\t<body>\n";
+           $tLine = $tLine + "\t\t<div id=\"content\">Getting Ready! Go again!</div>\n";
+           $tLine = $tLine + "\t\t<div id=\"mesharea\">Getting Ready! Go again!</div>\n";
+           $tLine = $tLine + "\t\t<canvas id=\"icanvas\"></canvas>\n";
+           $tLine = $tLine + "\t\t<script src=\"" + $vspScript + "\"></script>\n";
+           for($name in $bxjfShapes) $tLine = $tLine + "\t\t<script src=\"./" + $fPartNoFExt + "_" + $name + ".bcnbtz?callback=loadVizorMeshFile\"></script>\n";
+           $tLine = $tLine + "\t\t<script src=\"./" + $fPartNoFExt + ".vzrwrp?callback=processVizorScene\"></script>\n";
+           $tLine = $tLine + "\t</body>\n</html>\n";
+    
+    if($isMayaLtBxjf == false)
+    {
+        int $vizorHtmlFIDBaconXJF = `fopen $vizorHtmlPathBaconXJF "w"`;
+        fprint $vizorHtmlFIDBaconXJF $tLine;
+        fclose $vizorHtmlFIDBaconXJF;
+    }
+    else fwriteAllText $vizorHtmlPathBaconXJF $tLine;
+}
+
+global proc float[] sortVizorPtCloud(vector $ptCloud[], int $vIdx[])
+{
+    printBxjfStatus("Sorting Point Data for Triangle Mesh Export.");
+    float $sorted[];
+    int $s = size($vIdx);
+    int $i;
+    for($i=0; $i<$s; $i++)
+    {
+        if($vIdx[$i] != -1)
+        {
+            vector $tVec = $ptCloud[$vIdx[$i]];
+            $sorted[size($sorted)] = $tVec.x;
+            $sorted[size($sorted)] = $tVec.y;
+            $sorted[size($sorted)] = $tVec.z;
+        }
+    }
+    return $sorted;
+}
+
+global proc writeVzrMaterialsBxjf()
+{
+global int $depBxjf;
+global string $sepBxjf;
+global string $vizorHtmlPathBaconXJF;
+global string $bxjfShapes[];
+global string $expFilePathBaconXJF[];
+global string $fPartNoFExt;
+
+    string $mats[];
+    string $umats[];
+    string $shps[];
+    string $cams[];
+    string $lits[];
+    string $sels[] = `ls -l -shapes -v`;
+    int    $slen   = size($sels);
+    float  $minBB[] = {0.0, 0.0, 0.0};
+    float  $maxBB[] = {0.0, 0.0, 0.0};
+    string $uvMaps[];
+    
+//    $mats = `listConnections -type "shadingEngine" $shps`;
+    $mats = `ls -mat`;
+    int $mCount = 0;
+    for($node in $mats)
+    {
+        string $matType = `nodeType -api $node`;
+        if($matType == "kPhong") $umats[$mCount] = $node;
+    }
+    
+    prtLineBxjf(getObjHead("materials"));
+    $depBxjf++;
+    int $i = 0;
+    for($node in $umats)
+    {
+        if(`nodeType -api $node` == "kPhong")
+        {
+		    printBxjfStatus("Exporting Material Node: " + $node + ".\n");
+            prtLineBxjf(getObjHead($node));
+            $depBxjf++;
+    
+            string  $trpStr = $node + ".transparency";
+            string  $ambStr = $node + ".ambientColor";
+            float    $trp[] = `getAttr $trpStr`;
+            float     $ac[] = `getAttr $ambStr`;
+            float $ambFlt[] = {$ac[0], $ac[1], $ac[2], (1.0-(($trp[0] + $trp[1] + $trp[2])/3.0))};
+            prtLineBxjf(getNVPrFltArr("ambient_color", $ambFlt, ","));
+            
+            float     $dc[] = `getAttr ($node + ".color")`;
+            float $difFlt[] = {$dc[0], $dc[1], $dc[2], (1.0-(($trp[0] + $trp[1] + $trp[2])/3.0))};
+            prtLineBxjf(getNVPrFltArr("diffuse_color", $difFlt, ","));
+            
+            int $bfc = 0;
+            if(`getAttr ($sels[$i] + ".backfaceCulling")` == 1) $bfc = 1;
+            prtLineBxjf(getNVPrBool("double_sided", $bfc, ","));
+            
+            string $extImage1[] = `defaultNavigation -defaultTraversal -destination ($node+".color")`;
+            string $extImage2[] = `defaultNavigation -defaultTraversal -destination ($node+".normalCamera")`;
+            int $dmt1 = size($extImage1);
+            int $dmt2 = size($extImage2);
+            
+            int $shinyness = `getAttr ($node + ".reflectivity")`;
+            if($dmt1 > 0 || $dmt2 > 0) prtLineBxjf(getNVPrFlt("shinyness", $shinyness, ","));
+            else                       prtLineBxjf(getNVPrFlt("shinyness", $shinyness,  ""));
+            
+            $uvMaps = `polyUVSet -q -auv $sels[$i]`;
+
+            int $di;
+            string $iInfo1[];
+            for($di=0; $di<$dmt1; $di++)
+            {
+                int $uvIdx = 0;
+                string $uvSetPlug[] = `uvLink -queryObject $sels[$i] -texture $extImage1[$di]`;
+
+                int $fIdx = -1;
+                int $cc = size($uvMaps);
+                int $cci;
+                string $mapName = `getAttr $uvSetPlug[0]`;
+                for($cci=0; $cci<$cc; $cci++)
+                {
+                    if($mapName == $uvMaps[$cci]) $fIdx = $cci;
+                }
+                
+                if($fIdx == -1)
+                {
+                    $fIdx = $cc;
+                    $uvMaps[$cc] = $mapName;
+                }
+
+                string $pathAttr = $extImage1[$di] + ".fileTextureName";
+                string $extImageFilePath = `getAttr $pathAttr`;
+                string $relativePath = getRelativePathToAnotherFile($extImageFilePath, $vizorHtmlPathBaconXJF);
+                $iInfo1[size($iInfo1)] = getNVPrStr("url", $relativePath, ",");
+                
+                if($di<$dmt1-1) $iInfo1[size($iInfo1)] = getNVPrInt("uv_idx", $fIdx, ",");
+                else  $iInfo1[size($iInfo1)] = getNVPrInt("uv_idx", $fIdx, "");
+
+            }
+            if($dmt1 > 0)
+            {
+                string $endItem = "";
+                if($dmt2 > 0 ) $endItem = ",";
+                prtLineBxjf(getLeafObj("diffuse_color_map", $iInfo1, $endItem));
+            }
+            
+            string $iInfo2[];
+            for($di=0; $di<$dmt2; $di++)
+            {
+                int $uvIdx = 0;
+                string $uvSetPlug[] = `uvLink -queryObject $sels[$i] -texture $extImage2[$di]`;
+
+                int $fIdx = -1;
+                int $cc = size($uvMaps);
+                int $cci;
+                string $mapName = `getAttr $uvSetPlug[0]`;
+                for($cci=0; $cci<$cc; $cci++)
+                {
+                    if($mapName == $uvMaps[$cci]) $fIdx = $cci;
+                }
+                
+                if($fIdx == -1)
+                {
+                    $fIdx = $cc;
+                    $uvMaps[$cc] = $mapName;
+                }
+
+                string $pathAttr = $extImage2[$di] + ".fileTextureName";
+                string $extImageFilePath = `getAttr $pathAttr`;
+                string $relativePath = getRelativePathToAnotherFile($extImageFilePath, $vizorHtmlPathBaconXJF);
+                $iInfo2[size($iInfo2)] = getNVPrStr("url", $relativePath, ",");
+                
+                if($di<$dmt2-1) $iInfo2[size($iInfo2)] = getNVPrInt("uv_idx", $fIdx, ",");
+                else  $iInfo2[size($iInfo2)] = getNVPrInt("uv_idx", $fIdx, "");
+
+            }
+            if($dmt2 > 0) prtLineBxjf(getLeafObj("normal_map", $iInfo2, ""));
+            $depBxjf--;
+        }
+        
+        string $ender = "";
+        if($i < $mCount-1) $ender = ",";
+        prtLineBxjf(getObjFoot($ender));
+        $i++;
+    }
+    $depBxjf--;
+    prtLineBxjf(getObjFoot(","));
+}
+
+global proc writeVzrShapesBxjf()
+{
+global int $depBxjf;
+global string $sepBxjf;
+global string $vizorHtmlPathBaconXJF;
+global string $bxjfShapes[];
+global string $expFilePathBaconXJF[];
+global string $fPartNoFExt;
+
+    string $mats[];
+    string $umats[];
+    string $shps[];
+    string $cams[];
+    string $lits[];
+    string $sels[] = `ls -l -shapes -v`;
+    int    $slen   = size($sels);
+    float  $minBB[] = {0.0, 0.0, 0.0};
+    float  $maxBB[] = {0.0, 0.0, 0.0};
+    string $uvMaps[];
+    
+    int $shCnt = 0;
+    for ($node in $sels)
+    {
+        select -r $node;
+        Duplicate;
+        Triangulate;
+        DeleteHistory;
+        string $myChildren[] = `pickWalk -d down `;//listRelatives -children`;
+        if(!`attributeExists "bcnco" $myChildren[0]`) addAttr -ln "bcnCloneOf" -sn "bcnco" -dt "string" $myChildren[0];
+        
+        string $endName[];
+        tokenize $node "|" $endName;
+        int $enSize = size($endName);
+        setAttr ($myChildren[0] + ".bcnco") -type "string" $endName[$enSize-1];
+        $shps[$shCnt] = $myChildren[0];
+        $shCnt++;
+    } 
+    
+    prtLineBxjf(getObjHead("meshes"));
+    $depBxjf++;
+    int $count = 0;
+    for($node in $shps)
+    {
+        string $rels[] = `listRelatives -p $shps[$count]`;
+        float  $bbs[] = `xform -q -bb $rels[0]`;
+        
+        if($count == 0)
+        {
+            $minBB[0] = $bbs[0];
+            $minBB[1] = $bbs[1];
+            $minBB[2] = $bbs[2];
+            $maxBB[0] = $bbs[3];
+            $maxBB[1] = $bbs[4];
+            $maxBB[2] = $bbs[5];
+        }
+        else
+        {
+            if($bbs[0] < $minBB[0]) $minBB[0] = $bbs[0];
+            if($bbs[1] < $minBB[1]) $minBB[1] = $bbs[1];
+            if($bbs[2] < $minBB[2]) $minBB[2] = $bbs[2];
+            if($bbs[3] > $maxBB[0]) $maxBB[0] = $bbs[3];
+            if($bbs[4] > $maxBB[1]) $maxBB[1] = $bbs[4];
+            if($bbs[5] > $maxBB[2]) $maxBB[2] = $bbs[5];
+        }
+        
+        string $se[] = `listConnections -type "shadingEngine" $shps[$count]`;
+        $mats = `defaultNavigation -defaultTraversal -destination ($se[0] + ".surfaceShader")`;
+        //string $shapeName = `getAttr ($node + ".bcnco")`;
+        $bxjfShapes[$count] = `getAttr ($node + ".bcnco")`;
+        
+        prtLineBxjf(getObjHead($bxjfShapes[$count]));
+        $depBxjf++;
+        prtLineBxjf(getArrHeadNamed("batches"));
+        $depBxjf++;
+        prtLineBxjf "{";
+        $depBxjf++;
+        prtLineBxjf(getNVPrStr("material",                      $mats[0], ","));  
+        prtLineBxjf(getNVPrStr("vertices", ($bxjfShapes[$count] + "_v0"), ","));
+
+        $uvMaps = `polyUVSet -q -auv $node`;
+
+        int $uvms = size($uvMaps);
+        
+        string $nEnder = "";
+        if($uvms > 0) $nEnder = ",";
+        prtLineBxjf(getNVPrStr("normals", ($bxjfShapes[$count] + "_n0"), $nEnder));
+
+        if($uvms > 0)
+        {
+            int $uvmi;
+            for($uvmi=0; $uvmi<$uvms; $uvmi++)
+            {
+                string $uvEnder = "";
+                if($uvmi < $uvms-1) $uvEnder = ",";
+                prtLineBxjf(getNVPrStr( ("uv" + $uvmi), ($bxjfShapes[$count] + "_t" + $uvmi), $uvEnder ));
+            }
+        }
+        
+/*************************************************************************************
+
+global proc  vector[] bcnGetMeshPointCloud   (string $meshName, int       $asWorld)
+global proc       int bcnGetPointCount       (string $meshName)
+global proc       int bcnGetFaceCount        (string $meshName)
+global proc     int[] bcnGetFaceIndexSet     (string $meshName)
+global proc  string[] bcnGetUVMapNames       (string $meshName)
+global proc       int bcnGetUVMapCount       (string $meshName)
+global proc  vector[] bcnGetUVMapCloud       (string $meshName, string    $mapName)
+global proc       int bcnGetUVCoordCount     (string $meshName, string    $mapName)
+global proc       int bcnGetUVIndex          (string $meshName, int          $face, int $vIdx, string $mapName)
+global proc  vecotr[] bcnGetUVCoordPerVertex (string $meshName, string $uvMaps[]);
+global proc  vector[] bcnGetNormalsPerVertex (string $meshName, int $vertIdxList[])
+global proc  vector[] bcnGetNormalsPerFace   (string $meshName, int     $faceCount)
+*************************************************************************************/        
+
+	    printBxjfStatus("Get Face Count for: " + $node);
+        int         $numOfFaces =        bcnGetFaceCount($node           );
+	    printBxjfStatus("Get Point Count for: " + $node);
+        int        $numOfPoints =       bcnGetPointCount($node           );
+	    printBxjfStatus("Get Mesh Point Cloud: " + $node);
+        vector       $ptCloud[] =   bcnGetMeshPointCloud($node,    true  );
+	    printBxjfStatus("Get Vertex Indecies: " + $node);
+        int            $vIdxs[] =     bcnGetFaceIndexSet($node           );
+	    printBxjfStatus("Sorting Vizor Points: " + $node);
+        float      $ptsSorted[] =      sortVizorPtCloud ($ptCloud, $vIdxs);
+	    printBxjfStatus("Get Normals Per Vertex: " + $node);
+        vector           $npv[] = bcnGetNormalsPerVertex($node,    $vIdxs);
+        int                $nom = size($uvMaps);
+	    printBxjfStatus("Get UV Map Coordinates: " + $node);
+        vector      $uvCoords[] = bcnGetUVCoordPerVertex($node,   $uvMaps, $numOfFaces);
+        
+        string $shpFN = $fPartNoFExt + "_" + $bxjfShapes[$count] + ".bcnbtz";
+        string $mFilePath = $expFilePathBaconXJF[1] + $sepBxjf + $shpFN;
+        
+        prtVizorMeshBxjf($mFilePath, $bxjfShapes[$count], $ptsSorted, $npv, $uvCoords, $nom, $count);
+
+        select -r $node;
+        string $parent[] = `pickWalk -d up`;
+        
+        delete $parent[0];
+        $depBxjf--;
+        prtLineBxjf "}";
+        $depBxjf--;
+        prtLineBxjf(getArrFoot(""));
+        $depBxjf--;
+        if($count < $slen-1) prtLineBxjf "},";
+        else                 prtLineBxjf "}";
+        $count++;
+    }
+    $depBxjf--;
+    prtLineBxjf "},";
+    
+    prtLineBxjf "\"bounding_box\": ";
+    prtLineBxjf "{";
+    $depBxjf++;
+    prtLineBxjf ("\"lo\": [" + $minBB[0] + ", " + $minBB[1] + ", " + $minBB[2] + "],");
+    prtLineBxjf ("\"hi\": [" + $maxBB[0] + ", " + $maxBB[1] + ", " + $maxBB[2] + "],");
+    $depBxjf--;
+    prtLineBxjf "}";
+}
+/***********************************************************/
+//////////// Vizor VR Exporter End //////////////////////////
+
+global proc bacon_xjf_vizor()
+{
+	print "Sourcing bacon_xjf_vizor.mel\n";
+}
+
