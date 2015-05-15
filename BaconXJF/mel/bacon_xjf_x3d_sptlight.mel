@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 BaconXJF X3D SpotLight Function
+bacon_xjf_x3d_sptlight.mel
 Author: Aaron Bergstrom 
 E-mail: flickertail@gmail.com
 */
@@ -56,26 +57,27 @@ global int $depBxjf;
 //                prtLineBxjf $dlprint;
                 break;
             case "x3djFileFormat":
-				$output = getNamelessObjHead()
-				$output += "\n";
+				$output = getNamelessObjHead();
+				$output = $output + "\n";
 
 				$depBxjf++;
-				for($i=0; $i<$depBxjf; $i++) $output += "\t";
-				$output += getObjHead("SpotLight");
-				$output += "\n";
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+				$output = $output + getObjHead("SpotLight");
+				$output = $output + "\n";
 
                 $depBxjf++;
-				for($i=0; $i<$depBxjf; $i++) output += "\t";
-                $output += getNVPrStr("@USE", $sptlight, "");
-                $output += "\n";
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getNVPrStr("@USE", $sptlight, "");
+                $output = $output + "\n";
                 
                 $depBxjf--;
-				for($i=0; $i<$depBxjf; $i++) $output += "\t";
-                $output += getObjFoot("");
-                $output += "\n";
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getObjFoot("");
+                $output = $output + "\n";
                 
                 $depBxjf--;
-                $output += getObjFoot($bcnEnd);
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getObjFoot($bcnEnd);
                 break;
             case "x3dxFileFormat":
 //                string $xmlText = "<DirectionalLight USE=\"" + `getAttr $gBxjf.name` + "\"";
@@ -97,7 +99,7 @@ global int $depBxjf;
     else
     {
         $beenUsed = true;
-        setAttr $attribute -type bool $beenUsed;
+        setAttr $attribute $beenUsed;
     
     	//The child node actually has the light attributes, so you'll need to grab
     	//that node.
@@ -150,67 +152,68 @@ global int $depBxjf;
             case "x3djFileFormat":
             	string $jSptLightFields[];
             	int    $jslfSize = 0;
-				$output = getNamelessObjHead()
-				$output += "\n";
+				$output = getNamelessObjHead();
+				$output = $output + "\n";
 
 				$depBxjf++;
-				for($i=0; $i<$depBxjf; $i++) $output += "\t";
-				$output += getObjHead("SpotLight");
-				$output += "\n";
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+				$output = $output + getObjHead("SpotLight");
+				$output = $output + "\n";
 
                 $depBxjf++;
                 
 				$jSptLightFields[$jslfSize] = "";
-				for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] += "\t";
-                $jSptLightFields[$jslfSize] += getNVPrStr("@DEF", $sptlight, "");
+				for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + "\t";
+                $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + getNVPrStr("@DEF", $sptlight, "");
 				$jslfSize++;
 				
          		if($dlIntens != 0.0 )
          		{
 					$jSptLightFields[$jslfSize] = "";
-					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] += "\t";
-	                $jSptLightFields[$jslfSize] += getNVPrFlt("@intensity", $dlIntens, "");
+					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + "\t";
+	                $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + getNVPrFlt("@intensity", $dlIntens, "");
 					$jslfSize++;
          		} //$x3d_intensity = "intensity " +  $dlIntens;
 
          		if($dlColor[0] != 0.0 && $dlColor[1] != 0.0 && $dlColor[2] != 0.0)
          		{
 					$jSptLightFields[$jslfSize] = "";
-					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] += "\t";
-	                $jSptLightFields[$jslfSize] += getNVPrFltArr("@color", {$dlColor[0], $$dlColor[1], $$dlColor[2]}, "");
+					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + "\t";
+	                $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + getNVPrFltArr("@color", {$dlColor[0], $dlColor[1], $dlColor[2]}, "");
 					$jslfSize++;
          		}//$x3d_color = "color " +  $dlColor[0] + " " +  $dlColor[1] + " " +  $dlColor[2];
      
          		if($direction[0] != 0.0 && $direction[1] != 0.0 && $direction[2] != -1.0)
          		{
 					$jSptLightFields[$jslfSize] = "";
-					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] += "\t";
-	                $jSptLightFields[$jslfSize] += getNVPrFltArr("@direction", {$direction[0], $direction[1], $direction[2]}, "");
+					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + "\t";
+	                $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + getNVPrFltArr("@direction", {$direction[0], $direction[1], $direction[2]}, "");
 					$jslfSize++;
          		}//$x3d_direction = "direction " +  $direction[0] + " " +  $direction[1] + " " +  $direction[2];
                 
          		if($location[0] != 0.0 && $location[1] != 0.0 && $location[2] != 0.0)
          		{
 					$jSptLightFields[$jslfSize] = "";
-					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] += "\t";
-	                $jSptLightFields[$jslfSize] += getNVPrFltArr("@location", {$location[0], $location[1], $location[2]}, "");
+					for($i=0; $i<$depBxjf; $i++) $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + "\t";
+	                $jSptLightFields[$jslfSize] = $jSptLightFields[$jslfSize] + getNVPrFltArr("@location", {$location[0], $location[1], $location[2]}, "");
 					$jslfSize++;
          		}//$x3d_location = "location " +  $location[0] + " " +  $location[1] + " " +  $location[2];
 
                 for($i=0; $i<$jslfSize; $i++)
                 {
-                	$output += $jSptLightFields[$i]
-                	if($i < $jslfSize-1) $output += ",";
-                	$output += "\n";
+                	$output = $output + $jSptLightFields[$i];
+                	if($i < $jslfSize-1) $output = $output + ",";
+                	$output = $output + "\n";
                 } 
                 
                 $depBxjf--;
-				for($i=0; $i<$depBxjf; $i++) $output += "\t";
-                $output += getObjFoot("");
-                $output += "\n";
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getObjFoot("");
+                $output = $output + "\n";
                 
                 $depBxjf--;
-                $output += getObjFoot($bcnEnd);
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
+                $output = $output + getObjFoot($bcnEnd);
                 break;
             case "x3dxFileFormat":
                 break;

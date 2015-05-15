@@ -37,6 +37,13 @@ global int $depBxjf;
 //{
 //}
 
+global proc string getNamelessObjHead()
+{
+global int $depBxjf;
+	string $hd = "{";
+	return $hd;
+}
+
 global proc string getObjHead(string $bcnName)
 {
 global int $depBxjf;

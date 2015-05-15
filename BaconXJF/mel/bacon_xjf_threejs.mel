@@ -338,5 +338,5 @@ global int $depBxjf;
 
 global proc bacon_xjf_threejs()
 {
-	print "Sourcing bacon_xjf_threejs.mel";
+	print "Sourcing bacon_xjf_threejs.mel\n";
 }

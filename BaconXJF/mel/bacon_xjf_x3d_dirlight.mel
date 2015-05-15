@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 BaconXJF X3D Direcctinal Light Function
+bacon_xjf_x3d_dirlight.mel
 Author: Aaron Bergstrom 
 E-mail: flickertail@gmail.com
 */
@@ -75,6 +76,7 @@ global int $depBxjf;
                 $output = $output + "\n";
                 
                 $depBxjf--;
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
                 $output = $output + getObjFoot($bcnEnd);
                 break;
             case "x3dxFileFormat":
@@ -97,7 +99,7 @@ global int $depBxjf;
     else
     {
         $beenUsed = true;
-        setAttr $attribute -type bool $beenUsed;
+        setAttr $attribute $beenUsed;
     
     	//The child node actually has the light attributes, so you'll need to grab
     	//that node.
@@ -199,6 +201,7 @@ global int $depBxjf;
                 $output = $output + "\n";
                 
                 $depBxjf--;
+				for($i=0; $i<$depBxjf; $i++) $output = $output + "\t";
                 $output = $output + getObjFoot($bcnEnd);
                 break;
             case "x3dxFileFormat":

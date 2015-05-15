@@ -1013,20 +1013,25 @@ global string $bxjfUpAxis;
         	writeFileFooterBaconXJF();
 
         	if($expFormatBaconXJF == 1) prtVizorHTMLBxjf();        
-        
-        	if($isMayaLtBxjf == false) fclose $expFileIdBaconXJF;
-        	else fwriteAllLines $expFilePathBaconXJF[0] $expStrBaconXJF;
         }
+        
+        if($isMayaLtBxjf == false) fclose $expFileIdBaconXJF;
+        else fwriteAllLines $expFilePathBaconXJF[0] $expStrBaconXJF;
+
+    	string $outputBxjf = "File Exported: " + $expFilePathBaconXJF[0] + "\n";
+    	printBxjfStatus($outputBxjf);
+    	if($expFormatBaconXJF == 1)
+    	{
+        	string $prtOutVizorHtmlPath = ("HTML Saved to: " + $vizorHtmlPathBaconXJF);
+        	printBxjfStatus($prtOutVizorHtmlPath);
+        	launch -web $vizorHtmlPathBaconXJF;
+    	}
+    }
+    else
+    {
+    	print "ERROR: No output file designated!\n";
     }
     deleteBaconXJFEx;
-    string $outputBxjf = "File Exported: " + $expFilePathBaconXJF[0];// + "\n";
-    printBxjfStatus($outputBxjf);
-    if($expFormatBaconXJF == 1)
-    {
-        string $prtOutVizorHtmlPath = ("HTML Saved to: " + $vizorHtmlPathBaconXJF);
-        printBxjfStatus($prtOutVizorHtmlPath);
-        launch -web $vizorHtmlPathBaconXJF;
-    }
     
     //Removing temporary attributes that were used to test
     //whether or not a node had already been exported.
@@ -1035,11 +1040,14 @@ global string $bxjfUpAxis;
     int $iels;
     for($iels = 0; $iels<$els; $iels++)
     {
+		//todo account for X3D Export tracking attribute.
         deleteAttr ($expListBxjf[$iels] + ".bcnco");
     }
     
     string $newList[];
     $expListBxjf = $newList;
+    
+    $depBxjf = 0;
     
     setUpAxis $bxjfUpAxis;
 }

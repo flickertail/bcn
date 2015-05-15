@@ -21,29 +21,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-BaconXJF glTF Functions
-bacon_xjf_gltf.mel
+BaconXJF X3D Texture - Maya Node - File - Functions
+bacon_xjf_x3d_file.mel
 Author: Aaron Bergstrom 
 E-mail: flickertail@gmail.com
 */
 
 global int $depBxjf;
 
-//////////////////////////////////////////////////////////////////////
-/*********************************************************************
-glTF exporter
-*********************************************************************/
-//glTF
-global proc traverseSGgltfBaconXJF(string $gBxjf, string $branchNameBxjf, int $identity)
+global proc string bacon_xjf_x3d_file(string $texture, string $fileFormat, string $bcnEnd)
 {
 global int $depBxjf;
-    $depBxjf++;    
-    
-}
-/********************************************************************/
-//////////// glTF Exporter End ///////////////////////////////////////
-
-global proc bacon_xjf_gltf()
-{
-	print "Sourcing bacon_xjf_gltf.mel\n";
+	string $outStr = "";
+	return $outStr;
 }

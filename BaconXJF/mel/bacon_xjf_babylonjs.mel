@@ -31,5 +31,5 @@ global int $depBxjf;
 
 global proc bacon_xjf_babylonjs()
 {
-	print "Sourcing bacon_xjf_babylonjs.mel";
+	print "Sourcing bacon_xjf_babylonjs.mel\n";
 }

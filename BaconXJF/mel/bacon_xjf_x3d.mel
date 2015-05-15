@@ -107,8 +107,8 @@ global int $depBxjf;
             $depBxjf++;
             prtLineBxjf(getObjHead("meta"));
             $depBxjf++;
-            prtLineBxjf (getNVPStr("@content", $expFilePathBaconXJF[2], ","));
-            prtLineBxjf (getNVPStr("@name", "filename",""));
+            prtLineBxjf (getNVPrStr("@content", $expFilePathBaconXJF[2], ","));
+            prtLineBxjf (getNVPrStr("@name", "filename",""));
             $depBxjf--;
             prtLineBxjf (getObjFoot(""));
             $depBxjf--;
@@ -242,16 +242,16 @@ global string $matsBxjf[];
 			$depBxjf++;
 			prtLineBxjf(getNamelessObjHead());
             $depBxjf++;
-            prtLineBxjf(getNVPStr("@DEF", "MaterialsBxjf", ","));
+            prtLineBxjf(getNVPrStr("@DEF", "MaterialsBxjf", ","));
 			prtLineBxjf(getArrHeadNamed("-field"));
             $depBxjf++;
 			prtLineBxjf(getNamelessObjHead());
             $depBxjf++;
 			prtLineBxjf(getObjHead("field"));
 			$depBxjf++;
-            prtLineBxjf(getNVPStr("@name", "materials", ","));
-            prtLineBxjf(getNVPStr("@type", "MFNode", ","));
-            prtLineBxjf(getNVPStr("@accessType","initializeOnly",","));
+            prtLineBxjf(getNVPrStr("@name", "materials", ","));
+            prtLineBxjf(getNVPrStr("@type", "MFNode", ","));
+            prtLineBxjf(getNVPrStr("@accessType","initializeOnly",","));
 			prtLineBxjf(getArrHeadNamed("@value"));
             $depBxjf++;
             
@@ -322,16 +322,16 @@ global string $imgsBxjf[];
 			$depBxjf++;
 			prtLineBxjf(getNamelessObjHead());
             $depBxjf++;
-            prtLineBxjf(getNVPStr("@DEF", "TextureFilesBxjf", ","));
+            prtLineBxjf(getNVPrStr("@DEF", "TextureFilesBxjf", ","));
 			prtLineBxjf(getArrHeadNamed("-field"));
             $depBxjf++;
 			prtLineBxjf(getNamelessObjHead());
             $depBxjf++;
 			prtLineBxjf(getObjHead("field"));
 			$depBxjf++;
-            prtLineBxjf(getNVPStr("@name", "textures", ","));
-            prtLineBxjf(getNVPStr("@type", "MFNode", ","));
-            prtLineBxjf(getNVPStr("@accessType","initializeOnly",","));
+            prtLineBxjf(getNVPrStr("@name", "textures", ","));
+            prtLineBxjf(getNVPrStr("@type", "MFNode", ","));
+            prtLineBxjf(getNVPrStr("@accessType","initializeOnly",","));
 			prtLineBxjf(getArrHeadNamed("@value"));
             $depBxjf++;
             
@@ -386,16 +386,16 @@ global string $audioBxjf[];
 			$depBxjf++;
 			prtLineBxjf(getNamelessObjHead());
             $depBxjf++;
-            prtLineBxjf(getNVPStr("@DEF", "AudioFilesBxjf", ","));
+            prtLineBxjf(getNVPrStr("@DEF", "AudioFilesBxjf", ","));
 			prtLineBxjf(getArrHeadNamed("-field"));
             $depBxjf++;
 			prtLineBxjf(getNamelessObjHead());
             $depBxjf++;
 			prtLineBxjf(getObjHead("field"));
 			$depBxjf++;
-            prtLineBxjf(getNVPStr("@name", "audioClips", ","));
-            prtLineBxjf(getNVPStr("@type", "MFNode", ","));
-            prtLineBxjf(getNVPStr("@accessType","initializeOnly",","));
+            prtLineBxjf(getNVPrStr("@name", "audioClips", ","));
+            prtLineBxjf(getNVPrStr("@type", "MFNode", ","));
+            prtLineBxjf(getNVPrStr("@accessType","initializeOnly",","));
 			prtLineBxjf(getArrHeadNamed("@value"));
             $depBxjf++;
             
@@ -476,9 +476,13 @@ global int $depBxjf;
             break;
         case "x3djFileFormat":
             $depBxjf--;
-            prtLineBxjf(getObjFoot("}"));
+            prtLineBxjf(getObjFoot(""));
             $depBxjf--;
-            prtLineBxjf(getObjFoot("}"));
+            prtLineBxjf(getArrFoot(""));
+            $depBxjf--;
+            prtLineBxjf(getObjFoot(""));
+            $depBxjf--;
+            prtLineBxjf(getObjFoot(""));
             $depBxjf--;
             prtLineBxjf(getArrFoot(""));
             break;
@@ -698,7 +702,7 @@ global int $depBxjf;
 
 global proc bacon_xjf_x3d()
 {
-	print "Sourcing bacon_xjf_x3d.mel";
+	print "Sourcing bacon_xjf_x3d.mel\n";
 }
 
 /**********************************************************/
